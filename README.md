@@ -533,6 +533,9 @@ pytest
 
 ## Changelog
 
+### v1.2.6 (2026)
+- **Fix `admin.py`** — fieldsets Apparence réorganisés en 4 sections distinctes (Thème & Layout, Options avancées, Palette sombre, Palette claire) incluant tous les champs de v1.2.4
+
 ### v1.2.5 (2026)
 - **Fix dashboard : suppression de la fusion ancien/nouveau template** — l'ancien code (v1.2.2) était collé après le nouveau dans `dashboard.html`, causant l'affichage de l'ancienne section Apparence et de l'ancienne sidebar
 - **FontAwesome 6.5** — tous les emojis du dashboard remplacés par des icones FontAwesome (`fa-solid`) : sidebar, card headers, alertes, boutons, topbar

@@ -72,22 +72,67 @@ class CookieKitConfigAdmin(admin.ModelAdmin):
                 ),
             },
         ),
-        # ── Apparence ──────────────────────────────────────────────────────────
+        # ── Apparence — Thème & Layout ─────────────────────────────────────────
         (
-            _("Apparence"),
+            _("Apparence — Thème & Layout"),
             {
                 "fields": (
                     "banner_position",
                     "banner_layout",
+                    "banner_color_scheme",
+                    "banner_animation",
+                    "dashboard_theme",
+                    "font_family",
+                ),
+                "classes": ("collapse",),
+            },
+        ),
+        # ── Apparence — Options avancées ───────────────────────────────────────
+        (
+            _("Apparence — Options avancées"),
+            {
+                "fields": (
+                    "border_radius",
+                    "banner_border_radius_mobile",
+                    "banner_max_width",
+                    "banner_font_size",
+                    "banner_padding",
+                    "z_index",
+                    "shadow",
+                    "banner_backdrop_blur",
+                    "banner_overlay",
+                ),
+                "classes": ("collapse",),
+            },
+        ),
+        # ── Palette sombre ─────────────────────────────────────────────────────
+        (
+            _("Apparence — Palette sombre"),
+            {
+                "fields": (
                     "background_color",
                     "text_color",
                     "primary_color",
                     "primary_text_color",
                     "secondary_color",
                     "secondary_text_color",
-                    "border_radius",
-                    "shadow",
-                    "font_family",
+                    "banner_border_color",
+                ),
+                "classes": ("collapse",),
+            },
+        ),
+        # ── Palette claire ─────────────────────────────────────────────────────
+        (
+            _("Apparence — Palette claire"),
+            {
+                "fields": (
+                    "light_background_color",
+                    "light_text_color",
+                    "light_primary_color",
+                    "light_primary_text_color",
+                    "light_secondary_color",
+                    "light_secondary_text_color",
+                    "light_border_color",
                 ),
                 "classes": ("collapse",),
             },
@@ -166,7 +211,6 @@ class CookieKitConfigAdmin(admin.ModelAdmin):
             _("Avancé"),
             {
                 "fields": (
-                    "z_index",
                     "custom_css",
                     "updated_at",
                 ),
