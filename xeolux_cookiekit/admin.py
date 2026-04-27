@@ -212,32 +212,61 @@ class CookieKitConfigAdmin(admin.ModelAdmin):
     @admin.display(description=_("📦 Statut CacheKit"))
     def cachekit_version_status(self, obj: CookieKitConfig) -> str:
         """Affiche la version cachekit résolue pour cette config."""
+        import importlib.util
+
         if not obj.cachekit_enabled or not obj.cachekit_sync_cookie_version:
             return format_html('<span style="color:#888;">— Synchronisation désactivée</span>')
+
+        # Étape 1 : vérifier si le module est installé (sans importer)
+        if importlib.util.find_spec("xeolux_cachekit") is None:
+            return format_html(
+                '<span style="color:#f59e0b;">⚠ xeolux-cachekit non installé</span>'
+                ' — <span style="color:#888;">pip install xeolux-cachekit</span>'
+            )
+
+        # Étape 2 : le module est installé, tenter d'appeler get_version
+        key = obj.cachekit_version_key or "cookiekit"
         try:
             from xeolux_cachekit import get_version  # type: ignore[import]
+        except ImportError:
+            # Installé mais get_version n'existe pas à ce niveau
+            try:
+                import xeolux_cachekit as _ck  # type: ignore[import]
+                available = [x for x in dir(_ck) if not x.startswith("_")]
+                return format_html(
+                    '<span style="color:#22c55e;">✓ xeolux-cachekit installé</span>'
+                    ' — <span style="color:#f59e0b;">get_version() introuvable.'
+                    " Fonctions disponibles&nbsp;: {}</span>",
+                    ", ".join(available[:8]) or "—",
+                )
+            except Exception:
+                return format_html(
+                    '<span style="color:#22c55e;">✓ xeolux-cachekit installé</span>'
+                    ' — <span style="color:#f59e0b;">API incompatible (get_version manquant)</span>'
+                )
 
-            version = get_version(obj.cachekit_version_key or "cookiekit")
+        try:
+            version = get_version(key)
             if version:
                 return format_html(
                     '<span style="color:#22c55e;">✓ Version résolue : <strong>{}</strong></span>'
                     ' <span style="color:#888;">(clé : {})</span>',
                     version,
-                    obj.cachekit_version_key or "cookiekit",
+                    key,
                 )
             return format_html(
                 '<span style="color:#f59e0b;">⚠ Clé <strong>{}</strong> introuvable dans cachekit.</span>'
-                ' <span style="color:#888;">Créez cette clé dans xeolux-cachekit ou '
-                "désactivez la synchronisation.</span>",
-                obj.cachekit_version_key or "cookiekit",
+                " <span style=\"color:#888;\">Créez cette clé ou modifiez le champ"
+                " «&nbsp;Clé de version CacheKit&nbsp;».</span>",
+                key,
             )
-        except ImportError:
+        except Exception as exc:
             return format_html(
-                '<span style="color:#f59e0b;">⚠ xeolux-cachekit non installé</span>'
-                ' — <span style="color:#888;">pip install xeolux-cachekit</span>'
+                '<span style="color:#22c55e;">✓ xeolux-cachekit installé</span>'
+                ' — <span style="color:#f59e0b;">Erreur get_version({}) : {}</span>',
+                key,
+                str(exc)[:80],
             )
-        except Exception:
-            return format_html('<span style="color:#888;">— Erreur lors de la résolution</span>')
 
     @admin.display(description=_("📄 Scripts personnalisés"))
     def scripts_info(self, obj: CookieKitConfig) -> str:
@@ -343,7 +372,8 @@ class CookieKitIntegrationAdmin(admin.ModelAdmin):
     list_filter = ("category", "enabled")
     search_fields = ("slug", "label")
     ordering = ("order", "slug")
-    readonly_fields = ("config_help_display",)
+    readonly_fields = ("slug", "config_help_display")
+    actions = ["activate_integrations", "deactivate_integrations"]
 
     fieldsets = (
         (
@@ -372,6 +402,32 @@ class CookieKitIntegrationAdmin(admin.ModelAdmin):
             },
         ),
     )
+
+    def has_add_permission(self, request) -> bool:  # type: ignore[override]
+        """Interdit l'ajout manuel d'intégrations — elles sont créées via post_migrate."""
+        return False
+
+    def has_delete_permission(self, request, obj=None) -> bool:  # type: ignore[override]
+        """Interdit la suppression d'intégrations."""
+        return False
+
+    @admin.action(description=_("✅ Activer les intégrations sélectionnées"))
+    def activate_integrations(self, request, queryset) -> None:
+        count = queryset.update(enabled=True)
+        self.message_user(
+            request,
+            _(f"✅ {count} intégration(s) activée(s)."),
+            messages.SUCCESS,
+        )
+
+    @admin.action(description=_("❌ Désactiver les intégrations sélectionnées"))
+    def deactivate_integrations(self, request, queryset) -> None:
+        count = queryset.update(enabled=False)
+        self.message_user(
+            request,
+            _(f"❌ {count} intégration(s) désactivée(s)."),
+            messages.SUCCESS,
+        )
 
     @admin.display(description=_("Configuration"))
     def config_summary(self, obj: CookieKitIntegration) -> str:

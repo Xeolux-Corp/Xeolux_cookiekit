@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ page_title }}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --xck-bg:        #0f0f0f;
+      --xck-surface:   #1a1a1a;
+      --xck-border:    #2a2a2a;
+      --xck-text:      #e8e8e8;
+      --xck-muted:     #777;
+      --xck-primary:   #ff6b00;
+      --xck-green:     #22c55e;
+      --xck-yellow:    #f59e0b;
+      --xck-red:       #ef4444;
+      --xck-radius:    12px;
+      --xck-font:      -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background: var(--xck-bg);
+      color: var(--xck-text);
+      font-family: var(--xck-font);
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── Layout ── */
+    .xck-topbar {
+      background: var(--xck-surface);
+      border-bottom: 1px solid var(--xck-border);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .xck-logo {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--xck-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .xck-logo-dot { width: 8px; height: 8px; background: var(--xck-primary); border-radius: 50%; }
+    .xck-topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--xck-muted);
+    }
+    .xck-user {
+      background: var(--xck-border);
+      padding: 4px 12px;
+      border-radius: 20px;
+      color: var(--xck-text);
+    }
+    .xck-btn-admin {
+      background: var(--xck-primary);
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 12px;
+      transition: opacity .15s;
+    }
+    .xck-btn-admin:hover { opacity: .85; }
+
+    .xck-container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+
+    /* ── Header ── */
+    .xck-page-header { margin-bottom: 32px; }
+    .xck-page-header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .xck-page-header p { color: var(--xck-muted); font-size: 13px; }
+
+    /* ── Grid ── */
+    .xck-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+    .xck-grid-wide { grid-column: 1 / -1; }
+
+    /* ── Cards ── */
+    .xck-card {
+      background: var(--xck-surface);
+      border: 1px solid var(--xck-border);
+      border-radius: var(--xck-radius);
+      padding: 20px;
+    }
+    .xck-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--xck-border);
+    }
+    .xck-card-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--xck-muted);
+    }
+
+    /* ── Stats strip ── */
+    .xck-stats {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+    .xck-stat {
+      background: var(--xck-surface);
+      border: 1px solid var(--xck-border);
+      border-radius: var(--xck-radius);
+      padding: 16px 20px;
+      flex: 1;
+      min-width: 160px;
+    }
+    .xck-stat-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--xck-primary);
+      line-height: 1;
+    }
+    .xck-stat-label { font-size: 12px; color: var(--xck-muted); margin-top: 4px; }
+
+    /* ── Status badge ── */
+    .xck-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .xck-badge--on  { background: rgba(34,197,94,.15); color: var(--xck-green); border: 1px solid rgba(34,197,94,.25); }
+    .xck-badge--off { background: rgba(239,68,68,.12); color: var(--xck-red);   border: 1px solid rgba(239,68,68,.2); }
+    .xck-badge--warn{ background: rgba(245,158,11,.12); color: var(--xck-yellow); border: 1px solid rgba(245,158,11,.2); }
+    .xck-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    /* ── Config block ── */
+    .xck-config-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--xck-border);
+    }
+    .xck-config-row:last-child { border-bottom: none; }
+    .xck-config-key { color: var(--xck-muted); font-size: 12px; }
+    .xck-config-val { font-weight: 500; font-size: 13px; font-family: monospace; }
+
+    /* ── Intégrations list ── */
+    .xck-intg-group { margin-bottom: 20px; }
+    .xck-intg-group-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--xck-muted);
+      margin-bottom: 8px;
+    }
+    .xck-intg-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 12px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid var(--xck-border);
+      border-radius: 8px;
+      margin-bottom: 6px;
+      gap: 8px;
+    }
+    .xck-intg-label { font-size: 13px; font-weight: 500; flex: 1; }
+    .xck-intg-config {
+      font-size: 11px;
+      color: var(--xck-muted);
+      font-family: monospace;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* ── Categories ── */
+    .xck-cat-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--xck-border);
+    }
+    .xck-cat-item:last-child { border-bottom: none; }
+    .xck-cat-info { flex: 1; }
+    .xck-cat-name { font-weight: 600; font-size: 13px; }
+    .xck-cat-desc { font-size: 12px; color: var(--xck-muted); margin-top: 2px; }
+    .xck-cat-required {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--xck-green);
+      background: rgba(34,197,94,.1);
+      border: 1px solid rgba(34,197,94,.2);
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-top: 4px;
+      display: inline-block;
+    }
+
+    /* ── CacheKit card ── */
+    .xck-cachekit {
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .xck-cachekit-key {
+      font-family: monospace;
+      background: rgba(255,255,255,.05);
+      padding: 2px 8px;
+      border-radius: 4px;
+      color: var(--xck-primary);
+    }
+
+    /* ── Alert ── */
+    .xck-alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .xck-alert--warn { background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.25); color: var(--xck-yellow); }
+    .xck-alert--err  { background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.2);  color: var(--xck-red); }
+    .xck-alert--ok   { background: rgba(34,197,94,.08); border: 1px solid rgba(34,197,94,.2);  color: var(--xck-green); }
+
+    /* ── Footer ── */
+    .xck-footer {
+      text-align: center;
+      padding: 32px 0 24px;
+      font-size: 12px;
+      color: var(--xck-muted);
+    }
+    .xck-footer a { color: var(--xck-primary); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<!-- ── Top bar ── -->
+<div class="xck-topbar">
+  <div class="xck-logo">
+    <div class="xck-logo-dot"></div>
+    Xeolux CookieKit
+  </div>
+  <div class="xck-topbar-right">
+    <span class="xck-user">{{ request.user.username }}</span>
+    {% if request.user.is_staff %}
+      <a href="/admin/xeolux_cookiekit/" class="xck-btn-admin">⚙ Admin</a>
+    {% endif %}
+    <a href="/admin/logout/" style="color: var(--xck-muted); text-decoration:none; font-size:12px;">Déconnexion</a>
+  </div>
+</div>
+
+<div class="xck-container">
+
+  <!-- ── Header ── -->
+  <div class="xck-page-header">
+    <h1>Gestion des cookies</h1>
+    <p>Tableau de bord du consentement — accès restreint aux membres autorisés.</p>
+  </div>
+
+  {% if not config %}
+    <div class="xck-alert xck-alert--warn">
+      <span>⚠</span>
+      <span>Aucune configuration active. Allez dans l'admin pour créer et activer une configuration CookieKit.</span>
+    </div>
+  {% endif %}
+
+  <!-- ── Stats ── -->
+  <div class="xck-stats">
+    <div class="xck-stat">
+      <div class="xck-stat-value">{{ integrations_active_count }}</div>
+      <div class="xck-stat-label">Intégrations actives</div>
+    </div>
+    <div class="xck-stat">
+      <div class="xck-stat-value">{{ integrations_total }}</div>
+      <div class="xck-stat-label">Intégrations disponibles</div>
+    </div>
+    <div class="xck-stat">
+      <div class="xck-stat-value">{{ categories.count }}</div>
+      <div class="xck-stat-label">Catégories de cookies</div>
+    </div>
+    {% if config %}
+    <div class="xck-stat">
+      <div class="xck-stat-value" style="font-size:18px;">{{ config.consent_version }}</div>
+      <div class="xck-stat-label">Version de consentement</div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="xck-grid">
+
+    <!-- ── Config ── -->
+    {% if config %}
+    <div class="xck-card">
+      <div class="xck-card-header">
+        <span class="xck-card-title">⚙ Configuration</span>
+        <span class="xck-badge xck-badge--on"><span class="xck-dot"></span>Active</span>
+      </div>
+      <div class="xck-config-row">
+        <span class="xck-config-key">Statut</span>
+        {% if config.enabled %}
+          <span class="xck-badge xck-badge--on">Activé</span>
+        {% else %}
+          <span class="xck-badge xck-badge--off">Désactivé</span>
+        {% endif %}
+      </div>
+      <div class="xck-config-row">
+        <span class="xck-config-key">Version consentement</span>
+        <span class="xck-config-val">{{ config.consent_version }}</span>
+      </div>
+      <div class="xck-config-row">
+        <span class="xck-config-key">Nom du cookie</span>
+        <span class="xck-config-val">{{ config.cookie_name }}</span>
+      </div>
+      <div class="xck-config-row">
+        <span class="xck-config-key">Durée</span>
+        <span class="xck-config-val">{{ config.cookie_max_age_days }} jours</span>
+      </div>
+      <div class="xck-config-row">
+        <span class="xck-config-key">Cookie Secure</span>
+        {% if config.cookie_secure %}
+          <span class="xck-badge xck-badge--on">Oui</span>
+        {% else %}
+          <span class="xck-badge xck-badge--warn">Non</span>
+        {% endif %}
+      </div>
+      <div class="xck-config-row">
+        <span class="xck-config-key">SameSite</span>
+        <span class="xck-config-val">{{ config.cookie_samesite }}</span>
+      </div>
+      <div class="xck-config-row">
+        <span class="xck-config-key">Signature HMAC</span>
+        {% if config.cookie_signing_enabled %}
+          <span class="xck-badge xck-badge--on">Activée</span>
+        {% else %}
+          <span class="xck-badge xck-badge--warn">Désactivée</span>
+        {% endif %}
+      </div>
+      <div class="xck-config-row">
+        <span class="xck-config-key">Position bandeau</span>
+        <span class="xck-config-val">{{ config.banner_position }}</span>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- ── CacheKit ── -->
+    <div class="xck-card">
+      <div class="xck-card-header">
+        <span class="xck-card-title">📦 CacheKit</span>
+        {% if cachekit_status.installed %}
+          <span class="xck-badge xck-badge--on">Installé</span>
+        {% else %}
+          <span class="xck-badge xck-badge--warn">Non installé</span>
+        {% endif %}
+      </div>
+
+      {% if not cachekit_status.installed %}
+        <div class="xck-alert xck-alert--warn">
+          <span>⚠</span>
+          <div>xeolux-cachekit non installé.<br><code style="font-size:11px;">pip install xeolux-cachekit</code></div>
+        </div>
+      {% else %}
+        {% if cachekit_status.error == "no_get_version" %}
+          <div class="xck-alert xck-alert--warn">
+            <span>⚠</span>
+            <span>Package installé mais <code>get_version()</code> introuvable — vérifiez la version de xeolux-cachekit.</span>
+          </div>
+        {% elif cachekit_status.error %}
+          <div class="xck-alert xck-alert--err">
+            <span>✗</span>
+            <span>Erreur : {{ cachekit_status.error }}</span>
+          </div>
+        {% elif cachekit_status.version %}
+          <div class="xck-alert xck-alert--ok">
+            <span>✓</span>
+            <span>Version résolue : <strong>{{ cachekit_status.version }}</strong></span>
+          </div>
+        {% endif %}
+
+        <div class="xck-config-row">
+          <span class="xck-config-key">Synchronisation</span>
+          {% if config and config.cachekit_enabled %}
+            <span class="xck-badge xck-badge--on">Active</span>
+          {% else %}
+            <span class="xck-badge xck-badge--off">Désactivée</span>
+          {% endif %}
+        </div>
+        <div class="xck-config-row">
+          <span class="xck-config-key">Clé de version</span>
+          <span class="xck-cachekit-key">{{ cachekit_status.key }}</span>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- ── Catégories ── -->
+    <div class="xck-card">
+      <div class="xck-card-header">
+        <span class="xck-card-title">📂 Catégories de cookies</span>
+        <span style="font-size:12px;color:var(--xck-muted);">{{ categories.count }} catégorie(s)</span>
+      </div>
+      {% for cat in categories %}
+      <div class="xck-cat-item">
+        <div style="padding-top:2px;">
+          {% if cat.enabled or cat.required %}
+            <span class="xck-badge xck-badge--on"><span class="xck-dot"></span></span>
+          {% else %}
+            <span class="xck-badge xck-badge--off"><span class="xck-dot"></span></span>
+          {% endif %}
+        </div>
+        <div class="xck-cat-info">
+          <div class="xck-cat-name">{{ cat.label }} <span style="font-weight:400;color:var(--xck-muted);font-family:monospace;font-size:11px;">({{ cat.key }})</span></div>
+          {% if cat.description %}
+            <div class="xck-cat-desc">{{ cat.description }}</div>
+          {% endif %}
+          {% if cat.required %}
+            <span class="xck-cat-required">Requis</span>
+          {% endif %}
+        </div>
+      </div>
+      {% empty %}
+        <p style="color:var(--xck-muted);font-size:13px;">Aucune catégorie. Lancez <code>manage.py migrate</code>.</p>
+      {% endfor %}
+    </div>
+
+    <!-- ── Intégrations ── -->
+    <div class="xck-card xck-grid-wide">
+      <div class="xck-card-header">
+        <span class="xck-card-title">🔌 Intégrations tierces</span>
+        <span style="font-size:12px;color:var(--xck-muted);">
+          {{ integrations_active_count }} / {{ integrations_total }} actives
+        </span>
+      </div>
+
+      {% if not integrations %}
+        <p style="color:var(--xck-muted);font-size:13px;">Aucune intégration. Lancez <code>manage.py migrate</code>.</p>
+      {% else %}
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:24px;">
+          {% for cat_label, items in integrations_by_category.items %}
+          <div class="xck-intg-group">
+            <div class="xck-intg-group-label">{{ cat_label }}</div>
+            {% for intg in items %}
+            <div class="xck-intg-item">
+              <div style="flex-shrink:0;">
+                {% if intg.enabled %}
+                  <span class="xck-badge xck-badge--on"><span class="xck-dot"></span>Actif</span>
+                {% else %}
+                  <span class="xck-badge xck-badge--off"><span class="xck-dot"></span>Inactif</span>
+                {% endif %}
+              </div>
+              <span class="xck-intg-label">{{ intg.label }}</span>
+              {% if intg.config %}
+                <span class="xck-intg-config">
+                  {% for k, v in intg.config.items %}{% if v %}{{ k }}={{ v|truncatechars:20 }} {% endif %}{% endfor %}
+                </span>
+              {% else %}
+                <span style="font-size:11px;color:var(--xck-muted);">non configuré</span>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+  </div><!-- /.xck-grid -->
+
+  <div class="xck-footer">
+    Powered by <a href="https://pypi.org/project/xeolux-cookiekit/" target="_blank">xeolux-cookiekit</a>
+    &nbsp;·&nbsp;
+    {% if request.user.is_staff %}
+      <a href="/admin/xeolux_cookiekit/">Administrer →</a>
+    {% endif %}
+  </div>
+
+</div><!-- /.xck-container -->
+
+</body>
+</html>
