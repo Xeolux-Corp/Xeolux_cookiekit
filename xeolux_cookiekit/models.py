@@ -433,6 +433,27 @@ class CookieKitIntegration(models.Model):
             lines.append(line)
         return "\n".join(lines)
 
+    def get_config_fields(self) -> list:
+        """
+        Retourne les champs de configuration sous forme de liste de dicts.
+        Utilisé dans le template dashboard pour générer les inputs.
+        Chaque élément : {"key": str, "label": str, "placeholder": str, "help": str}
+        """
+        from xeolux_cookiekit.integrations import INTEGRATION_CATALOG  # noqa: PLC0415
+
+        info = INTEGRATION_CATALOG.get(self.slug)
+        if not info:
+            return []
+        result = []
+        for key, field in info.get("fields", {}).items():
+            result.append({
+                "key": key,
+                "label": field.get("label", key),
+                "placeholder": field.get("placeholder", ""),
+                "help": field.get("help", ""),
+            })
+        return result
+
 
 class CookieCategory(models.Model):
     """
