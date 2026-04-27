@@ -7,25 +7,68 @@
 
 /* ── Reset & custom properties ────────────────────────────────────────────── */
 :root {
+  /* ── Couleurs principales ── */
   --xck-bg: #111111;
   --xck-text: #ffffff;
   --xck-primary: #ff6b00;
   --xck-primary-text: #ffffff;
   --xck-secondary: #2b2b2b;
   --xck-secondary-text: #ffffff;
-  --xck-radius: 14px;
-  --xck-z-index: 9999;
-  --xck-shadow: 0 8px 40px rgba(0, 0, 0, 0.45);
-  --xck-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
 
-  /* Internes */
+  /* ── Typographie ── */
+  --xck-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  --xck-font-size-base: 0.85rem;
+  --xck-font-size-sm: 0.78rem;
+  --xck-font-size-xs: 0.72rem;
+  --xck-font-weight-bold: 700;
+  --xck-font-weight-semi: 600;
+  --xck-line-height: 1.55;
+
+  /* ── Géométrie ── */
+  --xck-radius: 14px;
+  --xck-radius-btn: calc(var(--xck-radius) * 0.65);
+  --xck-radius-sm: 8px;
+  --xck-z-index: 9999;
+  --xck-banner-max-width: 1400px;
+  --xck-modal-width: 520px;
+  --xck-banner-padding: 20px 24px;
+  --xck-banner-gap: 24px;
+
+  /* ── Ombres & profondeur ── */
+  --xck-shadow: 0 8px 40px rgba(0, 0, 0, 0.45);
+  --xck-shadow-btn: 0 4px 18px rgba(0, 0, 0, 0.25);
+  --xck-shadow-glow: 0 0 20px rgba(255, 107, 0, 0.35);
+
+  /* ── Animation ── */
   --xck-transition: 280ms cubic-bezier(0.4, 0, 0.2, 1);
+  --xck-transition-fast: 140ms ease;
+  --xck-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ── Overlay / bordures ── */
   --xck-overlay: rgba(0, 0, 0, 0.6);
   --xck-border: rgba(255, 255, 255, 0.08);
+  --xck-border-focus: rgba(255, 107, 0, 0.6);
+
+  /* ── Badges ── */
+  --xck-badge-bg: rgba(255, 107, 0, 0.12);
+  --xck-badge-color: var(--xck-primary);
+
+  /* ── Toggle ── */
   --xck-toggle-w: 44px;
   --xck-toggle-h: 24px;
-  --xck-toggle-off: #444;
+  --xck-toggle-off: #3a3a3a;
   --xck-toggle-thumb: #ffffff;
+  --xck-toggle-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+
+  /* ── Boutons ── */
+  --xck-btn-padding: 9px 18px;
+  --xck-btn-padding-sm: 7px 14px;
+  --xck-btn-font-size: 0.82rem;
+
+  /* ── Surface secondaire (catégories, hover) ── */
+  --xck-surface-hover: rgba(255, 255, 255, 0.03);
+  --xck-surface-active: rgba(255, 107, 0, 0.06);
+  --xck-text-muted: rgba(255, 255, 255, 0.55);
 }
 
 /* ── Bandeau ──────────────────────────────────────────────────────────────── */
@@ -73,12 +116,24 @@
   color: var(--xck-text);
   box-shadow: var(--xck-shadow);
   border-radius: var(--xck-radius) var(--xck-radius) 0 0;
-  padding: 20px 24px;
+  padding: var(--xck-banner-padding);
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: var(--xck-banner-gap);
   flex-wrap: wrap;
   border-top: 1px solid var(--xck-border);
+  max-width: var(--xck-banner-max-width);
+  margin: 0 auto;
+  /* Subtle top accent line */
+  background-image: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(255, 107, 0, 0.15) 50%,
+    transparent 100%
+  );
+  background-size: 100% 1px;
+  background-position: top center;
+  background-repeat: no-repeat;
 }
 
 /* Floating / bottom-left / bottom-right layout */
@@ -113,19 +168,20 @@
 
 .xck-banner__title {
   margin: 0 0 4px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-size: var(--xck-font-size-base);
+  font-weight: var(--xck-font-weight-bold);
+  letter-spacing: 0.025em;
   color: var(--xck-text);
   line-height: 1.3;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
 .xck-banner__message {
   margin: 0;
-  font-size: 0.82rem;
+  font-size: var(--xck-font-size-sm);
   color: var(--xck-text);
-  opacity: 0.75;
-  line-height: 1.55;
+  opacity: 0.72;
+  line-height: var(--xck-line-height);
 }
 
 .xck-banner__policy-link {
@@ -190,21 +246,30 @@
 .xck-button--primary {
   background: var(--xck-primary);
   color: var(--xck-primary-text);
+  box-shadow: 0 2px 8px rgba(255, 107, 0, 0.25);
 }
 
 .xck-button--primary:hover {
   filter: brightness(1.12);
-  box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+  box-shadow: var(--xck-shadow-btn), var(--xck-shadow-glow);
+  transform: translateY(-1px);
+}
+
+.xck-button--primary:active {
+  transform: scale(0.97) translateY(0);
+  box-shadow: 0 1px 4px rgba(255, 107, 0, 0.2);
 }
 
 /* Secondaire */
 .xck-button--secondary {
   background: var(--xck-secondary);
   color: var(--xck-secondary-text);
+  border: 1px solid var(--xck-border);
 }
 
 .xck-button--secondary:hover {
-  filter: brightness(1.18);
+  filter: brightness(1.22);
+  border-color: rgba(255,255,255,0.15);
 }
 
 /* Ghost */
@@ -212,12 +277,27 @@
   background: transparent;
   color: var(--xck-text);
   border: 1px solid var(--xck-border);
-  opacity: 0.8;
+  opacity: 0.75;
 }
 
 .xck-button--ghost:hover {
   opacity: 1;
   background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.2);
+}
+
+/* Danger (refus explicite) */
+.xck-button--danger {
+  background: transparent;
+  color: #ff4d4d;
+  border: 1px solid rgba(255, 77, 77, 0.3);
+  opacity: 0.85;
+}
+
+.xck-button--danger:hover {
+  opacity: 1;
+  background: rgba(255, 77, 77, 0.08);
+  border-color: rgba(255, 77, 77, 0.5);
 }
 
 /* ── Modal overlay ────────────────────────────────────────────────────────── */
@@ -355,23 +435,33 @@
 
 .xck-category__badge {
   display: inline-block;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--xck-primary);
-  background: rgba(255,107,0,0.12);
+  font-size: var(--xck-font-size-xs);
+  font-weight: var(--xck-font-weight-semi);
+  color: var(--xck-badge-color);
+  background: var(--xck-badge-bg);
   border-radius: 30px;
-  padding: 1px 8px;
+  padding: 2px 9px;
   margin-left: 6px;
   vertical-align: middle;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
+  border: 1px solid rgba(255, 107, 0, 0.2);
 }
 
 .xck-category__desc {
   margin: 4px 0 0;
-  font-size: 0.78rem;
+  font-size: var(--xck-font-size-sm);
   color: var(--xck-text);
-  opacity: 0.55;
+  opacity: 0.52;
   line-height: 1.5;
+}
+
+/* Catégorie active / sélectionnée */
+.xck-category--required {
+  background: var(--xck-surface-active);
+}
+
+.xck-category--required .xck-category__label {
+  color: var(--xck-primary);
 }
 
 /* ── Toggle switch ────────────────────────────────────────────────────────── */
@@ -401,8 +491,22 @@
   height: var(--xck-toggle-h);
   background: var(--xck-toggle-off);
   border-radius: 9999px;
-  transition: background var(--xck-transition);
+  transition: background var(--xck-transition), box-shadow var(--xck-transition);
   box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.xck-toggle__track::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 9999px;
+  opacity: 0;
+  background: rgba(255, 107, 0, 0.15);
+  transition: opacity var(--xck-transition);
+}
+
+.xck-toggle__input:checked + .xck-toggle__track::after {
+  opacity: 1;
 }
 
 .xck-toggle__thumb {
@@ -413,8 +517,8 @@
   height: calc(var(--xck-toggle-h) - 6px);
   background: var(--xck-toggle-thumb);
   border-radius: 50%;
-  transition: transform var(--xck-transition), box-shadow var(--xck-transition);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.35);
+  transition: transform var(--xck-transition-fast) var(--xck-ease-spring), box-shadow var(--xck-transition);
+  box-shadow: var(--xck-toggle-shadow);
 }
 
 /* Checked state */
@@ -525,5 +629,92 @@
   .xck-toggle__track,
   .xck-toggle__thumb {
     transition: none;
+    animation: none;
   }
+}
+
+/* ── Mode clair (light mode override) ────────────────────────────────────── */
+/* Pour activer le mode clair, ajoutez la classe .xck-light sur le body ou définissez */
+/* ces variables dans votre CSS personnalisé :                                          */
+/*   :root { --xck-bg: #fff; --xck-text: #1a1a1a; ... }                                */
+
+/* ── Bouton "small" ──────────────────────────────────────────────────────── */
+.xck-button--sm {
+  padding: var(--xck-btn-padding-sm);
+  font-size: var(--xck-font-size-sm);
+  border-radius: var(--xck-radius-sm);
+}
+
+/* ── Variante icône seule (pour la croix fermeture) ─────────────────────── */
+.xck-button--icon {
+  padding: 7px;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--xck-radius-sm);
+}
+
+/* ── Outline (pour les liens type "voir plus") ───────────────────────────── */
+.xck-button--outline {
+  background: transparent;
+  color: var(--xck-primary);
+  border: 1px solid rgba(255, 107, 0, 0.4);
+}
+
+.xck-button--outline:hover {
+  background: rgba(255, 107, 0, 0.08);
+  border-color: var(--xck-primary);
+}
+
+/* ── Bandeau "pill" (bottom-left / bottom-right compacts) ───────────────── */
+.xck-banner--pill .xck-banner__inner {
+  border-radius: 50px;
+  padding: 12px 20px;
+  gap: 12px;
+  width: auto;
+  max-width: 480px;
+}
+
+/* ── Watermark Xeolux (optionnel, discret) ───────────────────────────────── */
+.xck-watermark {
+  font-size: 0.68rem;
+  opacity: 0.3;
+  letter-spacing: 0.04em;
+  color: var(--xck-text);
+  text-decoration: none;
+  transition: opacity var(--xck-transition);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.xck-watermark:hover {
+  opacity: 0.6;
+}
+
+/* ── Animations d'entrée ─────────────────────────────────────────────────── */
+@keyframes xck-slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes xck-slide-down {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes xck-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes xck-scale-in {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.94); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+.xck-banner.xck-visible {
+  animation: xck-slide-up var(--xck-transition) forwards;
+}
+
+.xck-banner--top.xck-visible {
+  animation: xck-slide-down var(--xck-transition) forwards;
 }

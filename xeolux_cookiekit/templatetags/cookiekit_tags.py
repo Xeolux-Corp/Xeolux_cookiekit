@@ -135,9 +135,8 @@ def cookiekit_head() -> SafeString:
     # ── Intégrations conditionelles (injectées par JS après consentement) ──
     integrations_js = _build_integrations_js(integrations)
 
-    # ── Scripts head custom (CookieScript model) ───────────────────────────
+    # ── Scripts head custom (CookieScript model uniquement) ───────────────
     custom_scripts_html = _get_custom_scripts_html("head")
-    manual_head_scripts = config.get("custom_head_scripts", "")
 
     parts = [
         f'<link rel="stylesheet" href="/static/xeolux_cookiekit/cookiekit.css">',
@@ -151,8 +150,6 @@ def cookiekit_head() -> SafeString:
         integrations_js,
         custom_scripts_html,
     ]
-    if manual_head_scripts:
-        parts.append(manual_head_scripts)
 
     return mark_safe("\n".join(filter(None, parts)))
 
@@ -190,13 +187,8 @@ def cookiekit_body() -> SafeString:
                 f'height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>'
             )
 
-    # Scripts body personnalisés (model)
+    # Scripts body personnalisés (model uniquement)
     parts.append(_get_custom_scripts_html("body"))
-
-    # Scripts body manuels (champ texte)
-    manual_body = config.get("custom_body_scripts", "")
-    if manual_body:
-        parts.append(manual_body)
 
     return mark_safe("\n".join(filter(None, parts)))
 

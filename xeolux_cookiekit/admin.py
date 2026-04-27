@@ -24,7 +24,7 @@ class CookieKitConfigAdmin(admin.ModelAdmin):
         "updated_at",
     )
     list_display_links = ("__str__",)
-    readonly_fields = ("updated_at", "version_bump_hint", "analyticskit_bridge_status")
+    readonly_fields = ("updated_at", "version_bump_hint", "analyticskit_bridge_status", "cachekit_version_status", "scripts_info")
     actions = ["bump_patch_version"]
 
     fieldsets = (
@@ -139,18 +139,16 @@ class CookieKitConfigAdmin(admin.ModelAdmin):
                 "classes": ("collapse",),
             },
         ),
-        # ── Scripts personnalisés ──────────────────────────────────────────────
+        # ── Scripts personnalisés (via le modèle CookieScript) ───────────────────
+        # Les scripts sont gérés exclusivement via le modèle CookieScript.
+        # Allez dans Admin > Catégories > Scripts pour ajouter des scripts par catégorie.
         (
             _("Scripts personnalisés"),
             {
-                "fields": (
-                    "custom_head_scripts",
-                    "custom_body_scripts",
-                ),
-                "classes": ("collapse",),
+                "fields": ("scripts_info",),
                 "description": _(
-                    "Ces scripts sont injectés après consentement. "
-                    "Pour un contrôle fin par catégorie, utilisez le modèle CookieScript."
+                    "Les scripts conditionnels sont gérés via le modèle CookieScript "
+                    "(Admin → Xeolux CookieKit → Scripts personnalisés)."
                 ),
             },
         ),
@@ -162,6 +160,7 @@ class CookieKitConfigAdmin(admin.ModelAdmin):
                     "cachekit_enabled",
                     "cachekit_sync_cookie_version",
                     "cachekit_version_key",
+                    "cachekit_version_status",
                 ),
                 "classes": ("collapse",),
             },
@@ -195,7 +194,59 @@ class CookieKitConfigAdmin(admin.ModelAdmin):
         ),
     )
 
-    @admin.display(description=_("💡 Bump de version"))
+    @admin.display(description=_("� Statut CacheKit"))
+    def cachekit_version_status(self, obj: CookieKitConfig) -> str:
+        """Affiche la version cachekit résolue pour cette config."""
+        if not obj.cachekit_enabled or not obj.cachekit_sync_cookie_version:
+            return format_html('<span style="color:#888;">— Synchronisation désactivée</span>')
+        try:
+            from xeolux_cachekit import get_version  # type: ignore[import]
+
+            version = get_version(obj.cachekit_version_key or "cookiekit")
+            if version:
+                return format_html(
+                    '<span style="color:#22c55e;">✓ Version résolue : <strong>{}</strong></span>'
+                    ' <span style="color:#888;">(clé : {})</span>',
+                    version,
+                    obj.cachekit_version_key or "cookiekit",
+                )
+            return format_html(
+                '<span style="color:#f59e0b;">⚠ Clé <strong>{}</strong> introuvable dans cachekit.</span>'
+                ' <span style="color:#888;">Créez cette clé dans xeolux-cachekit ou '
+                'désactivez la synchronisation.</span>',
+                obj.cachekit_version_key or "cookiekit",
+            )
+        except ImportError:
+            return format_html(
+                '<span style="color:#f59e0b;">⚠ xeolux-cachekit non installé</span>'
+                ' — <span style="color:#888;">pip install xeolux-cachekit</span>'
+            )
+        except Exception:
+            return format_html('<span style="color:#888;">— Erreur lors de la résolution</span>')
+
+    @admin.display(description=_("📄 Scripts personnalisés"))
+    def scripts_info(self, obj: CookieKitConfig) -> str:
+        """Affiche le nombre de scripts actifs et un lien vers le modèle."""
+        try:
+            from xeolux_cookiekit.models import CookieScript  # noqa: PLC0415
+
+            total = CookieScript.objects.count()
+            active = CookieScript.objects.filter(enabled=True).count()
+            return format_html(
+                '<span style="color:#22c55e;">{} script(s) actif(s)</span>'
+                ' / {} au total — '
+                '<a href="/admin/xeolux_cookiekit/cookiescript/" '
+                'style="color:var(--xck-primary,#ff6b00)">Gérer les scripts →</a>',
+                active,
+                total,
+            )
+        except Exception:
+            return format_html(
+                '<a href="/admin/xeolux_cookiekit/cookiescript/">'
+                'Gérer les scripts personnalisés →</a>'
+            )
+
+    @admin.display(description=_("�💡 Bump de version"))
     def version_bump_hint(self, obj: CookieKitConfig) -> str:
         """Conseil affiché dans le formulaire pour incrémenter la version."""
         return format_html(

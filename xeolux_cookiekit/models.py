@@ -353,20 +353,6 @@ class CookieKitConfig(models.Model):
         help_text=_("Exemple : xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"),
     )
 
-    # --- Scripts personnalisés ---
-    custom_head_scripts = models.TextField(
-        _("Scripts personnalisés <head>"),
-        blank=True,
-        default="",
-        help_text=_("HTML/JS injecté dans le <head> après consentement."),
-    )
-    custom_body_scripts = models.TextField(
-        _("Scripts personnalisés <body>"),
-        blank=True,
-        default="",
-        help_text=_("HTML/JS injecté en début de <body> après consentement."),
-    )
-
     # --- Sécurité du cookie ---
     cookie_signing_enabled = models.BooleanField(
         _("Signature HMAC activée"),

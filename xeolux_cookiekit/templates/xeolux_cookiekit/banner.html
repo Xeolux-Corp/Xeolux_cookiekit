@@ -23,6 +23,14 @@
              target="_blank"
              rel="noopener noreferrer">{{ texts.privacy_policy|default:"Politique de confidentialité" }}</a>
         {% endif %}
+      </p>
+    </div>
+
+    <div class="xck-banner__actions">
+      <button
+        type="button"
+        class="xck-button xck-button--secondary"
+        id="xck-btn-reject"
         aria-label="{{ texts.reject_all|default:'Tout refuser' }}">
         {{ texts.reject_all|default:"Tout refuser" }}
       </button>

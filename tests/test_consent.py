@@ -120,9 +120,10 @@ class TestCookieCategoryModel:
         from django.db import IntegrityError
         from xeolux_cookiekit.models import CookieCategory
 
-        CookieCategory.objects.create(key="analytics", label="Analytics")
+        # Utilise une clé custom qui ne conflit pas avec les catégories auto-créées
+        CookieCategory.objects.create(key="custom_unique_test", label="Test")
         with pytest.raises(IntegrityError):
-            CookieCategory.objects.create(key="analytics", label="Duplicate")
+            CookieCategory.objects.create(key="custom_unique_test", label="Duplicate")
 
 
 @pytest.mark.django_db
