@@ -48,14 +48,24 @@ class TestCookieKitConfigModel:
 
     def test_to_settings_dict_structure(self):
         """to_settings_dict() doit retourner un dict avec les clés attendues."""
-        from xeolux_cookiekit.models import CookieKitConfig
+        from xeolux_cookiekit.models import CookieKitConfig, CookieKitIntegration
 
         config = CookieKitConfig.objects.create(
             enabled=True,
             consent_version="1.5.0",
-            google_analytics_enabled=True,
-            google_analytics_id="G-TEST123",
         )
+        # Activer l'intégration via le nouveau modèle (get_or_create car post_migrate l'auto-crée)
+        intg, _ = CookieKitIntegration.objects.get_or_create(
+            slug="google_analytics",
+            defaults={
+                "label": "Google Analytics 4",
+                "category": "analytics",
+                "config": {},
+            },
+        )
+        intg.enabled = True
+        intg.config = {"measurement_id": "G-TEST123"}
+        intg.save()
         d = config.to_settings_dict()
         assert d["consent_version"] == "1.5.0"
         assert d["integrations"]["google_analytics"]["enabled"] is True

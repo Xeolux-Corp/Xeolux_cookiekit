@@ -1,9 +1,10 @@
 """
 models.py — Modèles Django pour xeolux_cookiekit.
 
-  - CookieKitConfig : configuration globale singleton du bandeau
-  - CookieCategory  : catégories de cookies configurables
-  - CookieScript    : scripts personnalisés par catégorie
+  - CookieKitConfig       : configuration globale singleton du bandeau
+  - CookieKitIntegration  : intégrations tierces (analytics, marketing, chat…)
+  - CookieCategory        : catégories de cookies configurables
+  - CookieScript          : scripts personnalisés par catégorie
 """
 
 from __future__ import annotations
@@ -206,153 +207,6 @@ class CookieKitConfig(models.Model):
         ),
     )
 
-    # --- Google Analytics ---
-    google_analytics_enabled = models.BooleanField(
-        _("Google Analytics activé"),
-        default=False,
-    )
-    google_analytics_id = models.CharField(
-        _("Measurement ID (GA4)"),
-        max_length=50,
-        blank=True,
-        default="",
-        help_text=_("Exemple : G-XXXXXXXXXX"),
-    )
-
-    # --- Google Tag Manager ---
-    google_tag_manager_enabled = models.BooleanField(
-        _("Google Tag Manager activé"),
-        default=False,
-    )
-    google_tag_manager_id = models.CharField(
-        _("Container ID (GTM)"),
-        max_length=50,
-        blank=True,
-        default="",
-        help_text=_("Exemple : GTM-XXXXXXX"),
-    )
-
-    # --- Meta Pixel ---
-    meta_pixel_enabled = models.BooleanField(
-        _("Meta Pixel activé"),
-        default=False,
-    )
-    meta_pixel_id = models.CharField(
-        _("Pixel ID"),
-        max_length=50,
-        blank=True,
-        default="",
-    )
-
-    # --- Matomo ---
-    matomo_enabled = models.BooleanField(
-        _("Matomo activé"),
-        default=False,
-    )
-    matomo_site_id = models.CharField(
-        _("Matomo Site ID"),
-        max_length=20,
-        blank=True,
-        default="",
-    )
-    matomo_tracker_url = models.CharField(
-        _("Matomo Tracker URL"),
-        max_length=255,
-        blank=True,
-        default="",
-        help_text=_("Exemple : https://matomo.example.com/"),
-    )
-
-    # --- Plausible ---
-    plausible_enabled = models.BooleanField(
-        _("Plausible activé"),
-        default=False,
-    )
-    plausible_domain = models.CharField(
-        _("Plausible Domain"),
-        max_length=255,
-        blank=True,
-        default="",
-    )
-
-    # --- LinkedIn Insight Tag ---
-    linkedin_insight_enabled = models.BooleanField(
-        _("LinkedIn Insight Tag activé"),
-        default=False,
-    )
-    linkedin_partner_id = models.CharField(
-        _("LinkedIn Partner ID"),
-        max_length=50,
-        blank=True,
-        default="",
-        help_text=_("Exemple : 1234567"),
-    )
-
-    # --- TikTok Pixel ---
-    tiktok_pixel_enabled = models.BooleanField(
-        _("TikTok Pixel activé"),
-        default=False,
-    )
-    tiktok_pixel_id = models.CharField(
-        _("TikTok Pixel ID"),
-        max_length=50,
-        blank=True,
-        default="",
-        help_text=_("Exemple : C3XXXXXXXXXXXXXXXX"),
-    )
-
-    # --- Twitter/X Pixel ---
-    twitter_pixel_enabled = models.BooleanField(
-        _("Twitter / X Pixel activé"),
-        default=False,
-    )
-    twitter_pixel_id = models.CharField(
-        _("Twitter / X Pixel ID"),
-        max_length=50,
-        blank=True,
-        default="",
-        help_text=_("Exemple : o2345 (Universal Website Tag)"),
-    )
-
-    # --- Microsoft Clarity ---
-    clarity_enabled = models.BooleanField(
-        _("Microsoft Clarity activé"),
-        default=False,
-    )
-    clarity_project_id = models.CharField(
-        _("Clarity Project ID"),
-        max_length=50,
-        blank=True,
-        default="",
-        help_text=_("Exemple : abcde12345 (ID affiché dans Settings > Clarity)"),
-    )
-
-    # --- Hotjar ---
-    hotjar_enabled = models.BooleanField(
-        _("Hotjar activé"),
-        default=False,
-    )
-    hotjar_site_id = models.CharField(
-        _("Hotjar Site ID"),
-        max_length=20,
-        blank=True,
-        default="",
-        help_text=_("Exemple : 1234567"),
-    )
-
-    # --- Crisp Chat ---
-    crisp_enabled = models.BooleanField(
-        _("Crisp Chat activé"),
-        default=False,
-    )
-    crisp_website_id = models.CharField(
-        _("Crisp Website ID"),
-        max_length=100,
-        blank=True,
-        default="",
-        help_text=_("Exemple : xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"),
-    )
-
     # --- Sécurité du cookie ---
     cookie_signing_enabled = models.BooleanField(
         _("Signature HMAC activée"),
@@ -431,7 +285,20 @@ class CookieKitConfig(models.Model):
         """
         Convertit l'instance en dictionnaire compatible avec le format settings.py.
         Utilisé par conf.get_cookiekit_config() pour la fusion.
+        Les intégrations sont lues depuis CookieKitIntegration.
         """
+        # Charger les intégrations depuis le modèle dédié
+        integrations: dict = {}
+        try:
+            for intg in CookieKitIntegration.objects.all():
+                integrations[intg.slug] = {
+                    "enabled": intg.enabled,
+                    "category": intg.category,
+                    **intg.config,
+                }
+        except Exception:
+            pass
+
         return {
             "enabled": self.enabled,
             "consent_version": self.consent_version,
@@ -467,64 +334,7 @@ class CookieKitConfig(models.Model):
                 "preferences_title": self.preferences_title,
                 "privacy_policy": self.privacy_policy_label,
             },
-            "integrations": {
-                "google_analytics": {
-                    "enabled": self.google_analytics_enabled,
-                    "measurement_id": self.google_analytics_id,
-                    "category": "analytics",
-                },
-                "google_tag_manager": {
-                    "enabled": self.google_tag_manager_enabled,
-                    "container_id": self.google_tag_manager_id,
-                    "category": "analytics",
-                },
-                "meta_pixel": {
-                    "enabled": self.meta_pixel_enabled,
-                    "pixel_id": self.meta_pixel_id,
-                    "category": "marketing",
-                },
-                "matomo": {
-                    "enabled": self.matomo_enabled,
-                    "site_id": self.matomo_site_id,
-                    "tracker_url": self.matomo_tracker_url,
-                    "category": "analytics",
-                },
-                "plausible": {
-                    "enabled": self.plausible_enabled,
-                    "domain": self.plausible_domain,
-                    "category": "analytics",
-                },
-                "linkedin_insight": {
-                    "enabled": self.linkedin_insight_enabled,
-                    "partner_id": self.linkedin_partner_id,
-                    "category": "marketing",
-                },
-                "tiktok_pixel": {
-                    "enabled": self.tiktok_pixel_enabled,
-                    "pixel_id": self.tiktok_pixel_id,
-                    "category": "marketing",
-                },
-                "twitter_pixel": {
-                    "enabled": self.twitter_pixel_enabled,
-                    "pixel_id": self.twitter_pixel_id,
-                    "category": "marketing",
-                },
-                "clarity": {
-                    "enabled": self.clarity_enabled,
-                    "project_id": self.clarity_project_id,
-                    "category": "analytics",
-                },
-                "hotjar": {
-                    "enabled": self.hotjar_enabled,
-                    "site_id": self.hotjar_site_id,
-                    "category": "analytics",
-                },
-                "crisp": {
-                    "enabled": self.crisp_enabled,
-                    "website_id": self.crisp_website_id,
-                    "category": "preferences",
-                },
-            },
+            "integrations": integrations,
             "cachekit": {
                 "enabled": self.cachekit_enabled,
                 "sync_cookie_version": self.cachekit_sync_cookie_version,
@@ -536,6 +346,92 @@ class CookieKitConfig(models.Model):
                 "event_prefix": "xck",
             },
         }
+
+
+class CookieKitIntegration(models.Model):
+    """
+    Intégration tierce conditionnée au consentement.
+
+    Chaque entrée correspond à un service externe (analytics, marketing, chat…).
+    La configuration spécifique (IDs, URLs) est stockée dans le JSONField `config`.
+    Les scripts JS sont générés par integrations.py via build_integration_js().
+
+    Exemple : slug="google_analytics", config={"measurement_id": "G-XXXXXXX"}
+    """
+
+    CATEGORY_CHOICES = [
+        ("analytics", _("Analytics")),
+        ("marketing", _("Marketing")),
+        ("preferences", _("Préférences / Chat")),
+        ("necessary", _("Nécessaires")),
+    ]
+
+    slug = models.SlugField(
+        _("Identifiant (slug)"),
+        max_length=100,
+        unique=True,
+        help_text=_("Identifiant technique immuable. Ex : google_analytics, meta_pixel."),
+    )
+    label = models.CharField(
+        _("Nom affiché"),
+        max_length=100,
+    )
+    enabled = models.BooleanField(
+        _("Actif"),
+        default=False,
+    )
+    category = models.CharField(
+        _("Catégorie de consentement"),
+        max_length=50,
+        choices=CATEGORY_CHOICES,
+        default="analytics",
+        help_text=_(
+            "Détermine quel consentement est requis pour activer cette intégration."
+        ),
+    )
+    config = models.JSONField(
+        _("Configuration"),
+        default=dict,
+        blank=True,
+        help_text=_(
+            "Paramètres spécifiques au format JSON. "
+            "Ex : {\"measurement_id\": \"G-XXXXXXXX\"} pour Google Analytics. "
+            "Les clés attendues sont affichées dans le champ d'aide ci-dessous."
+        ),
+    )
+    order = models.PositiveSmallIntegerField(
+        _("Ordre d'affichage"),
+        default=0,
+    )
+
+    class Meta:
+        verbose_name = _("Intégration")
+        verbose_name_plural = _("Intégrations")
+        ordering = ["order", "slug"]
+
+    def __str__(self) -> str:
+        status = "✓" if self.enabled else "✗"
+        return f"[{status}] {self.label} ({self.slug})"
+
+    def get_config_help(self) -> str:
+        """Retourne les champs de configuration attendus pour cette intégration."""
+        from xeolux_cookiekit.integrations import INTEGRATION_CATALOG  # noqa: PLC0415
+
+        info = INTEGRATION_CATALOG.get(self.slug)
+        if not info:
+            return _("Intégration inconnue — aucune aide disponible.")
+        lines = [f"Champs attendus pour « {info['label']} » :"]
+        for key, field in info.get("fields", {}).items():
+            label = field.get("label", key)
+            help_text = field.get("help", "")
+            placeholder = field.get("placeholder", "")
+            line = f"  • {key} ({label})"
+            if help_text:
+                line += f" — {help_text}"
+            if placeholder:
+                line += f" [ex : {placeholder}]"
+            lines.append(line)
+        return "\n".join(lines)
 
 
 class CookieCategory(models.Model):

@@ -172,33 +172,62 @@ Accédez à `/admin/xeolux_cookiekit/cookiekitconfig/` pour tout configurer visu
 
 ## Intégrations tierces
 
-Toutes les intégrations s'activent depuis l'**admin Django**. Chaque script est injecté **uniquement après consentement** à la catégorie correspondante.
+Les intégrations sont gérées via le modèle **`CookieKitIntegration`** (Admin → Intégrations). Chaque script est injecté **uniquement après consentement** à la catégorie correspondante. Aucune migration DB nécessaire pour ajouter une intégration.
 
-### Analytiques
+### Analytics
 
-| Intégration | Catégorie | Champ admin |
+| Intégration | Catégorie | Config JSON |
 |---|---|---|
-| **Google Analytics 4** | `analytics` | Measurement ID (`G-XXXXXXXXXX`) |
-| **Google Tag Manager** | `analytics` | Container ID (`GTM-XXXXXXX`) |
-| **Matomo** | `analytics` | Site ID + Tracker URL |
-| **Plausible** | `analytics` | Domain |
-| **Microsoft Clarity** | `analytics` | Project ID |
-| **Hotjar** | `analytics` | Site ID |
+| **Google Analytics 4** | `analytics` | `measurement_id` |
+| **Google Tag Manager** | `analytics` | `container_id` |
+| **Matomo** | `analytics` | `site_id`, `tracker_url` |
+| **Plausible Analytics** | `analytics` | `domain`, `script_url` |
+| **Microsoft Clarity** | `analytics` | `project_id` |
+| **Hotjar** | `analytics` | `site_id` |
+| **Mixpanel** | `analytics` | `project_token` |
+| **Amplitude** | `analytics` | `api_key` |
+| **PostHog** | `analytics` | `api_key`, `host` |
+| **Umami Analytics** | `analytics` | `website_id`, `script_url` |
+| **Fathom Analytics** | `analytics` | `site_id` |
+| **Segment** | `analytics` | `write_key` |
+| **Heap Analytics** | `analytics` | `app_id` |
+| **FullStory** | `analytics` | `org_id` |
+| **Cloudflare Web Analytics** | `analytics` | `token` |
+| **HubSpot Tracking** | `analytics` | `portal_id` |
 
 ### Marketing
 
-| Intégration | Catégorie | Champ admin |
+| Intégration | Catégorie | Config JSON |
 |---|---|---|
-| **Meta Pixel** | `marketing` | Pixel ID |
-| **LinkedIn Insight Tag** | `marketing` | Partner ID |
-| **TikTok Pixel** | `marketing` | Pixel ID |
-| **Twitter / X Pixel** | `marketing` | Pixel ID |
+| **Meta Pixel** | `marketing` | `pixel_id` |
+| **LinkedIn Insight Tag** | `marketing` | `partner_id` |
+| **TikTok Pixel** | `marketing` | `pixel_id` |
+| **Twitter / X Pixel** | `marketing` | `pixel_id` |
+| **Pinterest Tag** | `marketing` | `tag_id` |
+| **Snapchat Pixel** | `marketing` | `pixel_id` |
+| **Reddit Pixel** | `marketing` | `advertiser_id` |
+| **Quora Pixel** | `marketing` | `pixel_id` |
+| **Brevo Tracker** | `marketing` | `client_key` |
 
-### Préférences
+### Support / Chat
 
-| Intégration | Catégorie | Champ admin |
+| Intégration | Catégorie | Config JSON |
 |---|---|---|
-| **Crisp Chat** | `preferences` | Website ID (UUID) |
+| **Crisp Chat** | `preferences` | `website_id` |
+| **Intercom** | `preferences` | `app_id` |
+| **Zendesk Chat** | `preferences` | `key` |
+| **Tidio Chat** | `preferences` | `public_key` |
+| **Freshchat** | `preferences` | `token`, `host` |
+
+### Activation depuis l'admin
+
+1. Allez dans **Admin → Xeolux CookieKit → Intégrations**
+2. Sélectionnez une intégration (toutes sont créées automatiquement au premier `migrate`)
+3. Cochez **Actif** et renseignez le champ **Configuration** (JSON) :
+   ```json
+   {"measurement_id": "G-XXXXXXXXXX"}
+   ```
+4. Sauvegardez — le script est actif immédiatement
 
 ---
 
@@ -333,6 +362,27 @@ pytest
 ```
 
 66 tests couvrent : config merge, RGPD/CNIL compliance, singleton admin, HMAC signing, payload validation, falsification detection, analytics bridge.
+
+---
+
+## Changelog
+
+### v1.1.0 (2025)
+- **Nouveau modèle `CookieKitIntegration`** — remplace les 22 champs individuels d'intégration de `CookieKitConfig` par un modèle générique avec `JSONField`
+- **30 intégrations** (15 nouvelles) : Mixpanel, Amplitude, PostHog, Umami, Fathom, Segment, Heap, FullStory, Cloudflare Web Analytics, HubSpot, Pinterest Tag, Snapchat Pixel, Reddit Pixel, Quora Pixel, Brevo, Intercom, Zendesk Chat, Tidio, Freshchat
+- **Nouveau fichier `integrations.py`** — catalogue centralisé + générateurs JS individuels
+- Ajout d'un admin `CookieKitIntegrationAdmin` avec aide contextuelle JSON
+- Auto-création des 30 intégrations au `migrate` (toutes désactivées par défaut)
+- Migrations 0007 (création table) + 0008 (suppression anciens champs)
+
+### v1.0.1 (2025)
+- Correctif `banner.html` (balise `<button>` manquante — texte "Refuser" affiché en clair)
+- Catégories auto-créées via signal `post_migrate`
+- Champ `cachekit_version_status` dans l'admin
+- Suppression des champs redondants `custom_head/body_scripts`
+
+### v1.0.0 (2025)
+- Version initiale : bandeau RGPD, modal préférences, 11 intégrations, HMAC-SHA256, CacheKit bridge
 
 ---
 

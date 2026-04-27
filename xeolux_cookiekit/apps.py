@@ -47,6 +47,7 @@ class XeoluxCookieKitConfig(AppConfig):
         from django.db.models.signals import post_migrate
 
         post_migrate.connect(_create_default_categories, sender=self)
+        post_migrate.connect(_create_default_integrations, sender=self)
 
 
 def _create_default_categories(sender, **kwargs) -> None:
@@ -67,6 +68,33 @@ def _create_default_categories(sender, **kwargs) -> None:
                     "required": cat_data["required"],
                     "enabled": cat_data["enabled"],
                     "order": cat_data["order"],
+                },
+            )
+    except Exception:
+        # Silencieux si la table n'existe pas encore (migrations non appliquées)
+        pass
+
+
+def _create_default_integrations(sender, **kwargs) -> None:
+    """
+    Crée les intégrations par défaut depuis INTEGRATION_CATALOG si elles n'existent pas.
+    Aucune intégration n'est activée par défaut (enabled=False).
+    Les intégrations existantes ne sont jamais modifiées.
+    Appelé automatiquement après chaque `python manage.py migrate`.
+    """
+    try:
+        from xeolux_cookiekit.integrations import INTEGRATION_CATALOG  # noqa: PLC0415
+        from xeolux_cookiekit.models import CookieKitIntegration  # noqa: PLC0415
+
+        for slug, info in INTEGRATION_CATALOG.items():
+            CookieKitIntegration.objects.get_or_create(
+                slug=slug,
+                defaults={
+                    "label": info["label"],
+                    "enabled": False,
+                    "category": info["category"],
+                    "config": {},
+                    "order": info.get("order", 0),
                 },
             )
     except Exception:

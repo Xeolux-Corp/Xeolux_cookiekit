@@ -108,65 +108,11 @@ COOKIEKIT_DEFAULTS: dict = {
     },
 
     # ── Intégrations tierces ───────────────────────────────────────────────
-    "integrations": {
-        "google_analytics": {
-            "enabled": False,
-            "measurement_id": "",
-            "category": "analytics",
-        },
-        "google_tag_manager": {
-            "enabled": False,
-            "container_id": "",
-            "category": "analytics",
-        },
-        "meta_pixel": {
-            "enabled": False,
-            "pixel_id": "",
-            "category": "marketing",
-        },
-        "matomo": {
-            "enabled": False,
-            "site_id": "",
-            "tracker_url": "",
-            "category": "analytics",
-        },
-        "plausible": {
-            "enabled": False,
-            "domain": "",
-            "script_url": "https://plausible.io/js/script.js",
-            "category": "analytics",
-        },
-        "linkedin_insight": {
-            "enabled": False,
-            "partner_id": "",
-            "category": "marketing",
-        },
-        "tiktok_pixel": {
-            "enabled": False,
-            "pixel_id": "",
-            "category": "marketing",
-        },
-        "twitter_pixel": {
-            "enabled": False,
-            "pixel_id": "",
-            "category": "marketing",
-        },
-        "clarity": {
-            "enabled": False,
-            "project_id": "",
-            "category": "analytics",
-        },
-        "hotjar": {
-            "enabled": False,
-            "site_id": "",
-            "category": "analytics",
-        },
-        "crisp": {
-            "enabled": False,
-            "website_id": "",
-            "category": "preferences",
-        },
-    },
+    # Les intégrations sont désormais gérées via le modèle CookieKitIntegration.
+    # Ce dictionnaire est construit dynamiquement depuis la base de données.
+    # Ici on fournit uniquement un dictionnaire vide comme valeur par défaut
+    # (il sera peuplé par conf.get_cookiekit_config() lors de la requête).
+    "integrations": {},
 
     # ── Compatibilité xeolux-cachekit ──────────────────────────────────────
     "cachekit": {

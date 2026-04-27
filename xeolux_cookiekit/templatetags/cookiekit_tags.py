@@ -176,16 +176,14 @@ def cookiekit_body() -> SafeString:
     parts = []
     integrations = config.get("integrations", {})
 
-    # GTM noscript
+    # GTM noscript (body fallback)
     gtm = integrations.get("google_tag_manager", {})
-    if gtm.get("enabled") and gtm.get("container_id"):
-        container_id = gtm["container_id"]
-        # Validation du container ID
-        if re.match(r'^GTM-[A-Z0-9]+$', container_id):
-            parts.append(
-                f'<noscript><iframe src="https://www.googletagmanager.com/ns.html?id={container_id}" '
-                f'height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>'
-            )
+    if gtm.get("enabled"):
+        from xeolux_cookiekit.integrations import get_gtm_noscript  # noqa: PLC0415
+
+        noscript = get_gtm_noscript(gtm)
+        if noscript:
+            parts.append(noscript)
 
     # Scripts body personnalisés (model uniquement)
     parts.append(_get_custom_scripts_html("body"))
@@ -303,231 +301,17 @@ def _get_custom_scripts_html(position: str) -> str:
 
 def _build_integrations_js(integrations: dict) -> str:
     """
-    Génère les blocs de scripts d'intégration encapsulés pour activation
-    JS conditionnelle après consentement.
+    Génère les blocs de scripts d'intégration depuis le dictionnaire de config.
+    Délègue à integrations.build_integration_js() pour chaque intégration activée.
     """
+    from xeolux_cookiekit.integrations import build_integration_js  # noqa: PLC0415
+
     parts = []
-
-    # ── Google Analytics ──────────────────────────────────────────────────
-    ga = integrations.get("google_analytics", {})
-    if ga.get("enabled") and ga.get("measurement_id"):
-        mid = ga["measurement_id"]
-        if re.match(r'^G-[A-Z0-9]+$', mid):
-            category = ga.get("category", "analytics")
-            parts.append(
-                f'<script type="text/plain" data-xck-category="{category}" data-xck-script="1">\n'
-                f'(function(){{\n'
-                f'  var s=document.createElement("script");\n'
-                f'  s.async=true;\n'
-                f'  s.src="https://www.googletagmanager.com/gtag/js?id={mid}";\n'
-                f'  document.head.appendChild(s);\n'
-                f'  window.dataLayer=window.dataLayer||[];\n'
-                f'  function gtag(){{dataLayer.push(arguments);}}\n'
-                f'  window.gtag=gtag;\n'
-                f'  gtag("js",new Date());\n'
-                f'  gtag("config","{mid}");\n'
-                f'}})();\n'
-                f'</script>'
-            )
-
-    # ── Google Tag Manager ────────────────────────────────────────────────
-    gtm = integrations.get("google_tag_manager", {})
-    if gtm.get("enabled") and gtm.get("container_id"):
-        cid = gtm["container_id"]
-        if re.match(r'^GTM-[A-Z0-9]+$', cid):
-            category = gtm.get("category", "analytics")
-            parts.append(
-                f'<script type="text/plain" data-xck-category="{category}" data-xck-script="1">\n'
-                f'(function(w,d,s,l,i){{w[l]=w[l]||[];w[l].push({{"gtm.start":\n'
-                f'new Date().getTime(),event:"gtm.js"}});var f=d.getElementsByTagName(s)[0],\n'
-                f'j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=\n'
-                f'"https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);\n'
-                f'}})(window,document,"script","dataLayer","{cid}");\n'
-                f'</script>'
-            )
-
-    # ── Meta Pixel ────────────────────────────────────────────────────────
-    meta = integrations.get("meta_pixel", {})
-    if meta.get("enabled") and meta.get("pixel_id"):
-        pid = meta["pixel_id"]
-        if re.match(r'^\d+$', str(pid)):
-            category = meta.get("category", "marketing")
-            parts.append(
-                f'<script type="text/plain" data-xck-category="{category}" data-xck-script="1">\n'
-                f'!function(f,b,e,v,n,t,s){{if(f.fbq)return;n=f.fbq=function(){{'
-                f'n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)}};\n'
-                f'if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version="2.0";\n'
-                f'n.queue=[];t=b.createElement(e);t.async=!0;\n'
-                f't.src=v;s=b.getElementsByTagName(e)[0];\n'
-                f's.parentNode.insertBefore(t,s)}}(window,document,"script",\n'
-                f'"https://connect.facebook.net/en_US/fbevents.js");\n'
-                f'fbq("init","{pid}");\n'
-                f'fbq("track","PageView");\n'
-                f'</script>'
-            )
-
-    # ── Matomo ────────────────────────────────────────────────────────────
-    matomo = integrations.get("matomo", {})
-    if matomo.get("enabled") and matomo.get("site_id") and matomo.get("tracker_url"):
-        site_id = matomo["site_id"]
-        tracker_url = matomo["tracker_url"].rstrip("/") + "/"
-        # Validation basique
-        if re.match(r'^\d+$', str(site_id)) and tracker_url.startswith("https://"):
-            category = matomo.get("category", "analytics")
-            parts.append(
-                f'<script type="text/plain" data-xck-category="{category}" data-xck-script="1">\n'
-                f'var _paq=window._paq=window._paq||[];\n'
-                f'_paq.push(["trackPageView"]);\n'
-                f'_paq.push(["enableLinkTracking"]);\n'
-                f'(function(){{\n'
-                f'  var u="{tracker_url}";\n'
-                f'  _paq.push(["setTrackerUrl",u+"matomo.php"]);\n'
-                f'  _paq.push(["setSiteId","{site_id}"]);\n'
-                f'  var d=document,g=d.createElement("script"),s=d.getElementsByTagName("script")[0];\n'
-                f'  g.async=true;g.src=u+"matomo.js";s.parentNode.insertBefore(g,s);\n'
-                f'}})();\n'
-                f'</script>'
-            )
-
-    # ── Plausible ─────────────────────────────────────────────────────────
-    plausible = integrations.get("plausible", {})
-    if plausible.get("enabled") and plausible.get("domain"):
-        domain = plausible["domain"]
-        script_url = plausible.get("script_url", "https://plausible.io/js/script.js")
-        # Validation basique du domaine
-        if re.match(r'^[a-zA-Z0-9._-]+$', domain) and script_url.startswith("https://"):
-            category = plausible.get("category", "analytics")
-            parts.append(
-                f'<script type="text/plain" data-xck-category="{category}" data-xck-script="1">\n'
-                f'(function(){{\n'
-                f'  var s=document.createElement("script");\n'
-                f'  s.defer=true;\n'
-                f'  s.setAttribute("data-domain","{domain}");\n'
-                f'  s.src="{script_url}";\n'
-                f'  document.head.appendChild(s);\n'
-                f'}})();\n'
-                f'</script>'
-            )
-
-    # ── LinkedIn Insight Tag ───────────────────────────────────────────────
-    linkedin = integrations.get("linkedin_insight", {})
-    if linkedin.get("enabled") and linkedin.get("partner_id"):
-        partner_id = str(linkedin["partner_id"])
-        if re.match(r'^\d+$', partner_id):
-            category = linkedin.get("category", "marketing")
-            parts.append(
-                f'<script type="text/plain" data-xck-category="{category}" data-xck-script="1">\n'
-                f'_linkedin_partner_id="{partner_id}";\n'
-                f'window._linkedin_data_partner_ids=window._linkedin_data_partner_ids||[];\n'
-                f'window._linkedin_data_partner_ids.push(_linkedin_partner_id);\n'
-                f'(function(l){{\n'
-                f'  if(!l){{window.lintrk=function(a,b){{window.lintrk.q.push([a,b])}};\n'
-                f'  window.lintrk.q=[]}}\n'
-                f'  var s=document.getElementsByTagName("script")[0];\n'
-                f'  var b=document.createElement("script");\n'
-                f'  b.type="text/javascript";b.async=true;\n'
-                f'  b.src="https://snap.licdn.com/li.lms-analytics/insight.min.js";\n'
-                f'  s.parentNode.insertBefore(b,s);\n'
-                f'}})(window.lintrk);\n'
-                f'</script>'
-            )
-
-    # ── TikTok Pixel ──────────────────────────────────────────────────────
-    tiktok = integrations.get("tiktok_pixel", {})
-    if tiktok.get("enabled") and tiktok.get("pixel_id"):
-        pixel_id = tiktok["pixel_id"]
-        if re.match(r'^[A-Z0-9]+$', pixel_id):
-            category = tiktok.get("category", "marketing")
-            parts.append(
-                f'<script type="text/plain" data-xck-category="{category}" data-xck-script="1">\n'
-                f'!function(w,d,t){{\n'
-                f'  w.TiktokAnalyticsObject=t;\n'
-                f'  var ttq=w[t]=w[t]||[];\n'
-                f'  ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie"];\n'
-                f'  ttq.setAndDefer=function(t,e){{t[e]=function(){{t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};}};\n'
-                f'  for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);\n'
-                f'  ttq.instance=function(t){{for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e;}};\n'
-                f'  ttq.load=function(e,n){{var i="https://analytics.tiktok.com/i18n/pixel/events.js";\n'
-                f'  ttq._i=ttq._i||{{}};ttq._i[e]=[];ttq._i[e]._u=i;ttq._t=ttq._t||{{}};ttq._t[e]=+new Date;\n'
-                f'  ttq._o=ttq._o||{{}};ttq._o[e]=n||{{}};\n'
-                f'  var s=document.createElement("script");s.type="text/javascript";s.async=true;s.src=i+"?sdkid="+e+"&lib="+t;\n'
-                f'  var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(s,a);\n'
-                f'  }};\n'
-                f'  ttq.load("{pixel_id}");\n'
-                f'  ttq.page();\n'
-                f'}}(window,document,"ttq");\n'
-                f'</script>'
-            )
-
-    # ── Twitter / X Pixel ─────────────────────────────────────────────────
-    twitter = integrations.get("twitter_pixel", {})
-    if twitter.get("enabled") and twitter.get("pixel_id"):
-        pixel_id = twitter["pixel_id"]
-        if re.match(r'^[a-zA-Z0-9]+$', pixel_id):
-            category = twitter.get("category", "marketing")
-            parts.append(
-                f'<script type="text/plain" data-xck-category="{category}" data-xck-script="1">\n'
-                f'!function(e,t,n,s,u,a){{\n'
-                f'  e.twq||(s=e.twq=function(){{s.exe?s.exe.apply(s,arguments):s.queue.push(arguments);}};\n'
-                f'  s.version="1.1";s.queue=[];u=t.createElement(n);u.async=!0;\n'
-                f'  u.src="https://static.ads-twitter.com/uwt.js";\n'
-                f'  a=t.getElementsByTagName(n)[0];a.parentNode.insertBefore(u,a);\n'
-                f'}}(window,document,"script");\n'
-                f'twq("config","{pixel_id}");\n'
-                f'</script>'
-            )
-
-    # ── Microsoft Clarity ─────────────────────────────────────────────────
-    clarity = integrations.get("clarity", {})
-    if clarity.get("enabled") and clarity.get("project_id"):
-        project_id = clarity["project_id"]
-        if re.match(r'^[a-z0-9]+$', project_id):
-            category = clarity.get("category", "analytics")
-            parts.append(
-                f'<script type="text/plain" data-xck-category="{category}" data-xck-script="1">\n'
-                f'(function(c,l,a,r,i,t,y){{\n'
-                f'  c[a]=c[a]||function(){{(c[a].q=c[a].q||[]).push(arguments)}};\n'
-                f'  t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;\n'
-                f'  y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);\n'
-                f'}})(window,document,"clarity","script","{project_id}");\n'
-                f'</script>'
-            )
-
-    # ── Hotjar ────────────────────────────────────────────────────────────
-    hotjar = integrations.get("hotjar", {})
-    if hotjar.get("enabled") and hotjar.get("site_id"):
-        site_id = str(hotjar["site_id"])
-        if re.match(r'^\d+$', site_id):
-            category = hotjar.get("category", "analytics")
-            parts.append(
-                f'<script type="text/plain" data-xck-category="{category}" data-xck-script="1">\n'
-                f'(function(h,o,t,j,a,r){{\n'
-                f'  h.hj=h.hj||function(){{(h.hj.q=h.hj.q||[]).push(arguments)}};\n'
-                f'  h._hjSettings={{hjid:{site_id},hjsv:6}};\n'
-                f'  a=o.getElementsByTagName("head")[0];\n'
-                f'  r=o.createElement("script");r.async=1;\n'
-                f'  r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;\n'
-                f'  a.appendChild(r);\n'
-                f'}})(window,document,"https://static.hotjar.com/c/hotjar-",".js?sv=");\n'
-                f'</script>'
-            )
-
-    # ── Crisp Chat ────────────────────────────────────────────────────────
-    crisp = integrations.get("crisp", {})
-    if crisp.get("enabled") and crisp.get("website_id"):
-        website_id = crisp["website_id"]
-        # UUID format validation
-        if re.match(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', website_id.lower()):
-            category = crisp.get("category", "preferences")
-            parts.append(
-                f'<script type="text/plain" data-xck-category="{category}" data-xck-script="1">\n'
-                f'window.$crisp=[];window.CRISP_WEBSITE_ID="{website_id}";\n'
-                f'(function(){{\n'
-                f'  var d=document;var s=d.createElement("script");\n'
-                f'  s.src="https://client.crisp.chat/l.js";s.async=1;\n'
-                f'  d.getElementsByTagName("head")[0].appendChild(s);\n'
-                f'}})();\n'
-                f'</script>'
-            )
-
+    for slug, cfg in integrations.items():
+        if not cfg.get("enabled"):
+            continue
+        category = cfg.get("category", "analytics")
+        js = build_integration_js(slug, cfg, category)
+        if js:
+            parts.append(js)
     return "\n".join(parts)
