@@ -10,7 +10,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-66%20passed-brightgreen)](tests/)
 
-Bandeau cookies moderne, configurable depuis l'**admin Django**, sécurisé par **HMAC-SHA256**, conforme **RGPD/CNIL**, avec **71 intégrations tierces** et un tableau de bord `/cookiekit/` intégré.
+Bandeau cookies moderne, configurable depuis l'**admin Django**, sécurisé par **HMAC-SHA256**, conforme **RGPD/CNIL**, avec **72 intégrations tierces** et un tableau de bord `/cookiekit/` intégré.
 
 </div>
 
@@ -22,7 +22,7 @@ Bandeau cookies moderne, configurable depuis l'**admin Django**, sécurisé par 
 - **Configurable depuis l'admin Django** — zéro code côté settings pour tout sauf `enabled`
 - **RGPD/CNIL** — analytics opt-in uniquement, durée max 395 jours (13 mois) respectée
 - **HMAC-SHA256** — cookie signé côté serveur, cookie HttpOnly anti-falsification
-- **71 intégrations** — Analytics, Session replay, Marketing pixels, Chat, CDP, A/B testing, Push notifications, Email tracking et plus
+- **72 intégrations** — Analytics, Session replay, Marketing pixels, Chat, CDP, A/B testing, Push notifications, Email tracking et plus
 - **API JavaScript** — `hasConsent()`, `acceptAll()`, `rejectAll()`, événement `xeolux:cookies:updated`
 - **Versioning du consentement** — le bandeau réapparaît si la version change
 - **Compatibilité xeolux-cachekit** — cache-busting statiques + cookies versionnés, synchronisation de la version de consentement via `get_cache_version("cookies")`
@@ -250,6 +250,7 @@ Les intégrations sont gérées via le modèle **`CookieKitIntegration`** (Admin
 | **Countly** | `analytics` | `app_key`, `server_url` |
 | **Adobe Analytics** | `analytics` | `script_url` |
 | **Piwik PRO** | `analytics` | `container_id`, `container_url` |
+| **Visitors.now** | `analytics` | `token` |
 
 ### Product analytics / session replay
 
@@ -346,7 +347,7 @@ Les intégrations sont gérées via le modèle **`CookieKitIntegration`** (Admin
 
 ## Scripts personnalisés
 
-En plus des 30 intégrations tierces, vous pouvez ajouter vos propres scripts via **Admin → Scripts personnalisés**.
+En plus des **72 intégrations tierces** (dont Visitors.now, Google Analytics, Meta Pixel…), vous pouvez ajouter vos propres scripts via **Admin → Scripts personnalisés**.
 
 Chaque script est :
 - associé à une **catégorie** (sélecteur dynamique basé sur vos `CookieCategory`)
@@ -531,6 +532,19 @@ pytest
 ---
 
 ## Changelog
+
+### v1.2.4 (2026)
+- **Palette dark/light configurable séparément** — 6 couleurs dark + 6 couleurs light + bordures, chacune éditable depuis le dashboard `/cookiekit/` ou l'admin. Fini le thème clair hardcodé Apple-style.
+- **Plus de paramètres d'apparence** : largeur max (`banner_max_width`), taille du texte (`banner_font_size`), padding interne (`banner_padding`), border radius mobile, overlay sombre, couleur de bordure dark/light, z-index et police maintenant éditables depuis le dashboard
+- **Nouvelles CSS custom properties** : `--xck-border`, `--xck-font-size`, `--xck-padding`, `--xck-max-width`, `--xck-radius-mobile`
+- **Intégration Visitors.now** — 72ème intégration. Script `https://cdn.visitors.now/v.js` conditionné au consentement analytics. Config : `token`
+- **Fix dashboard CacheKit** : la "Version consentement" dans la vue d'ensemble affiche désormais la version résolue par CacheKit (si sync active) et non la valeur brute de la DB. Indicateur ⚡ via CacheKit ajouté.
+
+### v1.2.3 (2026)
+- **Dashboard `/cookiekit/` entièrement réécrit** — sidebar de navigation, édition inline de toute la config (général, apparence, textes, intégrations, catégories, scripts custom)
+- **CRUD scripts personnalisés** — création/modification/suppression via modal dans le dashboard (sans passer par l'admin)
+- **Fix `conf.py`** : `get_cachekit_version()` utilise maintenant `get_cache_version` (corrigé + `version_key` default `"cookiekit"` → `"cookies"`)
+- **Filtre template `get_item`** ajouté pour accès dict par clé dans les templates
 
 ### v1.2.2 (2026)
 - **Dark / Light / Auto mode sur le bandeau** — le champ `banner_color_scheme` (`dark`/`light`/`auto`) pilote les CSS custom properties du bandeau de consentement et de la modal de préférences

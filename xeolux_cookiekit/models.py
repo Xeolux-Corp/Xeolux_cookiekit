@@ -173,6 +173,87 @@ class CookieKitConfig(models.Model):
         default=False,
         help_text=_("Applique un flou derrière le bandeau. Effet glassmorphism."),
     )
+
+    # --- Palette dark (mode sombre) — utilise les champs existants background_color etc. ---
+
+    # --- Palette light (mode clair configurable) ---
+    light_background_color = models.CharField(
+        _("Fond clair"),
+        max_length=20,
+        default="#f5f5f7",
+        help_text=_("Utilisé quand le bandeau est en mode 'Clair' ou 'Auto' + OS en mode clair."),
+    )
+    light_text_color = models.CharField(
+        _("Texte clair"),
+        max_length=20,
+        default="#1d1d1f",
+    )
+    light_primary_color = models.CharField(
+        _("Couleur primaire (clair)"),
+        max_length=20,
+        default="#e05e00",
+    )
+    light_primary_text_color = models.CharField(
+        _("Texte bouton primaire (clair)"),
+        max_length=20,
+        default="#ffffff",
+    )
+    light_secondary_color = models.CharField(
+        _("Couleur secondaire (clair)"),
+        max_length=20,
+        default="#e0e0e5",
+    )
+    light_secondary_text_color = models.CharField(
+        _("Texte bouton secondaire (clair)"),
+        max_length=20,
+        default="#1d1d1f",
+    )
+    light_border_color = models.CharField(
+        _("Bordure (clair)"),
+        max_length=20,
+        blank=True,
+        default="#e5e5ea",
+        help_text=_("Laissez vide pour désactiver la bordure en mode clair."),
+    )
+
+    # --- Options avancées du bandeau ---
+    banner_max_width = models.CharField(
+        _("Largeur maximale"),
+        max_length=20,
+        default="680px",
+        help_text=_("Valeur CSS. Ex : 680px, 90vw. Ne s'applique qu'au layout modal/flottant."),
+    )
+    banner_font_size = models.CharField(
+        _("Taille du texte"),
+        max_length=20,
+        default="15px",
+        help_text=_("Valeur CSS pour font-size. Ex : 14px, 0.9rem."),
+    )
+    banner_padding = models.CharField(
+        _("Padding interne"),
+        max_length=30,
+        default="1.5rem 2rem",
+        help_text=_("Valeur CSS pour padding. Ex : 1.5rem 2rem, 20px 24px."),
+    )
+    banner_border_color = models.CharField(
+        _("Bordure (sombre)"),
+        max_length=20,
+        blank=True,
+        default="",
+        help_text=_("Couleur de bordure en mode sombre. Laissez vide pour désactiver."),
+    )
+    banner_border_radius_mobile = models.CharField(
+        _("Border radius mobile"),
+        max_length=20,
+        default="0px",
+        help_text=_("Border radius sur mobile. Ex : 0px (bandeau pleine largeur) ou 12px."),
+    )
+    banner_overlay = models.BooleanField(
+        _("Overlay sombre (arrière-plan)"),
+        default=False,
+        help_text=_("Affiche un fond sombre derrière le bandeau modal/flottant."),
+    )
+
     dashboard_theme = models.CharField(
         _("Thème du dashboard"),
         max_length=10,
@@ -350,13 +431,29 @@ class CookieKitConfig(models.Model):
                 "color_scheme": self.banner_color_scheme,
                 "animation": self.banner_animation,
                 "backdrop_blur": self.banner_backdrop_blur,
+                "overlay": self.banner_overlay,
+                # Palette sombre (dark)
                 "background_color": self.background_color,
                 "text_color": self.text_color,
                 "primary_color": self.primary_color,
                 "primary_text_color": self.primary_text_color,
                 "secondary_color": self.secondary_color,
                 "secondary_text_color": self.secondary_text_color,
+                "border_color": self.banner_border_color,
+                # Palette claire (light)
+                "light_background_color": self.light_background_color,
+                "light_text_color": self.light_text_color,
+                "light_primary_color": self.light_primary_color,
+                "light_primary_text_color": self.light_primary_text_color,
+                "light_secondary_color": self.light_secondary_color,
+                "light_secondary_text_color": self.light_secondary_text_color,
+                "light_border_color": self.light_border_color,
+                # Options de mise en forme
                 "border_radius": self.border_radius,
+                "border_radius_mobile": self.banner_border_radius_mobile,
+                "max_width": self.banner_max_width,
+                "font_size": self.banner_font_size,
+                "padding": self.banner_padding,
                 "shadow": self.shadow,
                 "font_family": self.font_family,
                 "z_index": self.z_index,

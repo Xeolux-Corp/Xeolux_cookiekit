@@ -969,6 +969,19 @@ INTEGRATION_CATALOG: dict[str, dict] = {
         },
     },
 
+    "visitors_now": {
+        "label": "Visitors.now",
+        "category": "analytics",
+        "order": 33,
+        "fields": {
+            "token": {
+                "label": "Project Token",
+                "help": "Disponible dans votre tableau de bord Visitors.now",
+                "placeholder": "votre_token_visitors",
+            }
+        },
+    },
+
 }
 
 
@@ -2306,6 +2319,21 @@ def build_pushengage(cfg: dict, category: str) -> str:
     ))
 
 
+def build_visitors_now(cfg: dict, category: str) -> str:
+    token = cfg.get("token", "")
+    if not re.match(r'^[a-zA-Z0-9_-]+$', token):
+        return ""
+    return _wrap(category, (
+        f'(function(){{\n'
+        f'  var s=document.createElement("script");\n'
+        f'  s.async=true;\n'
+        f'  s.src="https://cdn.visitors.now/v.js";\n'
+        f'  s.setAttribute("data-token","{token}");\n'
+        f'  document.head.appendChild(s);\n'
+        f'}})();'
+    ))
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 #  Dispatcher — mapping slug → builder function
 # ──────────────────────────────────────────────────────────────────────────────
@@ -2382,6 +2410,7 @@ INTEGRATION_BUILDERS: dict[str, callable] = {
     "growthbook": build_growthbook,
     "onesignal": build_onesignal,
     "pushengage": build_pushengage,
+    "visitors_now": build_visitors_now,
 }
 
 

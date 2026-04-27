@@ -316,8 +316,13 @@
         </div>
         {% if config %}
         <div class="stat">
-          <div class="stat-value" style="font-size:16px;margin-top:4px;">{{ config.consent_version }}</div>
-          <div class="stat-label">Version consentement</div>
+          <div class="stat-value" style="font-size:16px;margin-top:4px;">{{ resolved_consent_version|default:config.consent_version }}</div>
+          <div class="stat-label">
+            Version consentement
+            {% if cachekit_status.installed and config.cachekit_enabled and config.cachekit_sync_cookie_version and cachekit_status.version %}
+            <span title="Version fournie par CacheKit (synchronisation active)" style="color:#f59e0b;font-size:11px;display:block;">⚡ via CacheKit</span>
+            {% endif %}
+          </div>
         </div>
         {% endif %}
       </div>
@@ -437,9 +442,10 @@
     <!-- ══════════════════════════════════════════════════════════════ -->
     <div class="section" id="section-appearance">
       <h2 class="section-title">Apparence du bandeau</h2>
-      <p class="section-sub">Couleurs, thème, layout et animations.</p>
+      <p class="section-sub">Couleurs, thème, layout, animations et options avancées. La palette <strong>sombre</strong> et la palette <strong>claire</strong> sont configurées séparément.</p>
 
       {% if config %}
+      <!-- ── Thème & Layout ─────────────────────────────────────── -->
       <div class="card">
         <div class="card-header"><span class="card-title">🎨 Thème &amp; Layout</span></div>
         <div class="card-body">
@@ -449,8 +455,9 @@
               <select id="f-banner_color_scheme" {% if not can_edit %}disabled{% endif %}>
                 <option value="dark" {% if config.banner_color_scheme == "dark" %}selected{% endif %}>🌙 Sombre</option>
                 <option value="light" {% if config.banner_color_scheme == "light" %}selected{% endif %}>☀ Clair</option>
-                <option value="auto" {% if config.banner_color_scheme == "auto" %}selected{% endif %}>⚡ Auto (système)</option>
+                <option value="auto" {% if config.banner_color_scheme == "auto" %}selected{% endif %}>⚡ Auto (OS)</option>
               </select>
+              <div class="hint">Auto = sombre par défaut, clair si l'OS est en mode clair.</div>
             </div>
             <div class="field">
               <label class="lbl">Thème dashboard</label>
@@ -486,65 +493,115 @@
               </select>
             </div>
             <div class="field">
-              <label class="lbl">Border radius</label>
-              <input type="text" id="f-border_radius" value="{{ config.border_radius }}" {% if not can_edit %}disabled{% endif %}>
+              <label class="lbl">Police (font-family)</label>
+              <input type="text" id="f-font_family" value="{{ config.font_family }}" placeholder="system" {% if not can_edit %}disabled{% endif %}>
+              <div class="hint">Valeur CSS. <code>system</code> = police système.</div>
             </div>
-          </div>
-          <div class="divider"></div>
-          <div class="toggle-field">
-            <label class="xck-sw"><input type="checkbox" id="f-shadow" {% if config.shadow %}checked{% endif %} {% if not can_edit %}disabled{% endif %}><span class="xck-sw-track"></span></label>
-            <div><label>Ombre portée</label></div>
-          </div>
-          <div class="toggle-field">
-            <label class="xck-sw"><input type="checkbox" id="f-banner_backdrop_blur" {% if config.banner_backdrop_blur %}checked{% endif %} {% if not can_edit %}disabled{% endif %}><span class="xck-sw-track"></span></label>
-            <div><label>Backdrop blur (glassmorphism)</label><div class="hint">Flou derrière le bandeau.</div></div>
           </div>
         </div>
       </div>
 
+      <!-- ── Options avancées ───────────────────────────────────────── -->
       <div class="card">
-        <div class="card-header"><span class="card-title">🎨 Palette de couleurs</span></div>
+        <div class="card-header"><span class="card-title">⚙ Options avancées</span></div>
         <div class="card-body">
           <div class="form-grid-3">
             <div class="field">
-              <label class="lbl">Fond</label>
-              <div style="display:flex;gap:8px;align-items:center;">
-                <input type="color" id="f-background_color-picker" value="{{ config.background_color }}" style="width:36px;height:34px;padding:2px;border-radius:6px;border:1px solid var(--border);background:none;cursor:pointer;" {% if not can_edit %}disabled{% endif %}>
-                <input type="text" id="f-background_color" value="{{ config.background_color }}" {% if not can_edit %}disabled{% endif %} style="flex:1;">
-              </div>
+              <label class="lbl">Border radius</label>
+              <input type="text" id="f-border_radius" value="{{ config.border_radius }}" placeholder="14px" {% if not can_edit %}disabled{% endif %}>
             </div>
             <div class="field">
-              <label class="lbl">Texte</label>
-              <div style="display:flex;gap:8px;align-items:center;">
-                <input type="color" id="f-text_color-picker" value="{{ config.text_color }}" style="width:36px;height:34px;padding:2px;border-radius:6px;border:1px solid var(--border);background:none;cursor:pointer;" {% if not can_edit %}disabled{% endif %}>
-                <input type="text" id="f-text_color" value="{{ config.text_color }}" {% if not can_edit %}disabled{% endif %} style="flex:1;">
-              </div>
+              <label class="lbl">Border radius mobile</label>
+              <input type="text" id="f-banner_border_radius_mobile" value="{{ config.banner_border_radius_mobile }}" placeholder="0px" {% if not can_edit %}disabled{% endif %}>
+              <div class="hint">0px = bandeau pleine largeur sur mobile.</div>
             </div>
             <div class="field">
-              <label class="lbl">Primaire (boutons)</label>
-              <div style="display:flex;gap:8px;align-items:center;">
-                <input type="color" id="f-primary_color-picker" value="{{ config.primary_color }}" style="width:36px;height:34px;padding:2px;border-radius:6px;border:1px solid var(--border);background:none;cursor:pointer;" {% if not can_edit %}disabled{% endif %}>
-                <input type="text" id="f-primary_color" value="{{ config.primary_color }}" {% if not can_edit %}disabled{% endif %} style="flex:1;">
-              </div>
+              <label class="lbl">Largeur max</label>
+              <input type="text" id="f-banner_max_width" value="{{ config.banner_max_width }}" placeholder="680px" {% if not can_edit %}disabled{% endif %}>
+              <div class="hint">Layout modal/flottant seulement.</div>
             </div>
             <div class="field">
-              <label class="lbl">Texte bouton primaire</label>
-              <div style="display:flex;gap:8px;align-items:center;">
-                <input type="color" id="f-primary_text_color-picker" value="{{ config.primary_text_color }}" style="width:36px;height:34px;padding:2px;border-radius:6px;border:1px solid var(--border);background:none;cursor:pointer;" {% if not can_edit %}disabled{% endif %}>
-                <input type="text" id="f-primary_text_color" value="{{ config.primary_text_color }}" {% if not can_edit %}disabled{% endif %} style="flex:1;">
-              </div>
+              <label class="lbl">Taille du texte</label>
+              <input type="text" id="f-banner_font_size" value="{{ config.banner_font_size }}" placeholder="15px" {% if not can_edit %}disabled{% endif %}>
             </div>
             <div class="field">
-              <label class="lbl">Secondaire</label>
+              <label class="lbl">Padding interne</label>
+              <input type="text" id="f-banner_padding" value="{{ config.banner_padding }}" placeholder="1.5rem 2rem" {% if not can_edit %}disabled{% endif %}>
+            </div>
+            <div class="field">
+              <label class="lbl">Z-Index</label>
+              <input type="number" id="f-z_index" value="{{ config.z_index }}" placeholder="9999" {% if not can_edit %}disabled{% endif %}>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div style="display:flex;flex-wrap:wrap;gap:24px;">
+            <div class="toggle-field" style="margin:0;">
+              <label class="xck-sw"><input type="checkbox" id="f-shadow" {% if config.shadow %}checked{% endif %} {% if not can_edit %}disabled{% endif %}><span class="xck-sw-track"></span></label>
+              <div><label>Ombre portée</label></div>
+            </div>
+            <div class="toggle-field" style="margin:0;">
+              <label class="xck-sw"><input type="checkbox" id="f-banner_backdrop_blur" {% if config.banner_backdrop_blur %}checked{% endif %} {% if not can_edit %}disabled{% endif %}><span class="xck-sw-track"></span></label>
+              <div><label>Backdrop blur</label><div class="hint">Flou glassmorphism.</div></div>
+            </div>
+            <div class="toggle-field" style="margin:0;">
+              <label class="xck-sw"><input type="checkbox" id="f-banner_overlay" {% if config.banner_overlay %}checked{% endif %} {% if not can_edit %}disabled{% endif %}><span class="xck-sw-track"></span></label>
+              <div><label>Overlay sombre</label><div class="hint">Fond sombre derrière le modal.</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Palette sombre ────────────────────────────────────────── -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">🌙 Palette sombre</span><span class="badge badge-off" style="font-size:11px;">Mode dark</span></div>
+        <div class="card-body">
+          <div class="form-grid-3">
+            {% for field_id, label, value in color_fields %}
+            <div class="field">
+              <label class="lbl">{{ label }}</label>
               <div style="display:flex;gap:8px;align-items:center;">
-                <input type="color" id="f-secondary_color-picker" value="{{ config.secondary_color }}" style="width:36px;height:34px;padding:2px;border-radius:6px;border:1px solid var(--border);background:none;cursor:pointer;" {% if not can_edit %}disabled{% endif %}>
-                <input type="text" id="f-secondary_color" value="{{ config.secondary_color }}" {% if not can_edit %}disabled{% endif %} style="flex:1;">
+                <input type="color" id="f-{{ field_id }}-picker" value="{{ value }}" style="width:36px;height:34px;padding:2px;border-radius:6px;border:1px solid var(--border);background:none;cursor:pointer;" {% if not can_edit %}disabled{% endif %} oninput="document.getElementById('f-{{ field_id }}').value=this.value">
+                <input type="text" id="f-{{ field_id }}" value="{{ value }}" {% if not can_edit %}disabled{% endif %} style="flex:1;" oninput="var p=document.getElementById('f-{{ field_id }}-picker');if(/^#[0-9a-fA-F]{6}$/.test(this.value))p.value=this.value">
+              </div>
+            </div>
+            {% endfor %}
+            <div class="field">
+              <label class="lbl">Bordure (sombre)</label>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input type="color" id="f-banner_border_color-picker" value="{{ config.banner_border_color|default:'#333333' }}" style="width:36px;height:34px;padding:2px;border-radius:6px;border:1px solid var(--border);background:none;cursor:pointer;" {% if not can_edit %}disabled{% endif %} oninput="document.getElementById('f-banner_border_color').value=this.value">
+                <input type="text" id="f-banner_border_color" value="{{ config.banner_border_color }}" placeholder="(vide = sans bordure)" {% if not can_edit %}disabled{% endif %} style="flex:1;">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Palette claire ────────────────────────────────────────── -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">☀ Palette claire</span><span class="badge badge-on" style="font-size:11px;">Mode light / auto</span></div>
+        <div class="card-body">
+          <p class="hint" style="margin-bottom:12px;">Utilisée quand le thème bandeau est <strong>Clair</strong> ou <strong>Auto</strong> (OS en mode clair). Chaque couleur est configurable indépendamment.</p>
+          <div class="form-grid-3">
+            {% for field_id, label, value in light_color_fields %}
+            <div class="field">
+              <label class="lbl">{{ label }}</label>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input type="color" id="f-{{ field_id }}-picker" value="{{ value }}" style="width:36px;height:34px;padding:2px;border-radius:6px;border:1px solid var(--border);background:none;cursor:pointer;" {% if not can_edit %}disabled{% endif %} oninput="document.getElementById('f-{{ field_id }}').value=this.value">
+                <input type="text" id="f-{{ field_id }}" value="{{ value }}" {% if not can_edit %}disabled{% endif %} style="flex:1;" oninput="var p=document.getElementById('f-{{ field_id }}-picker');if(/^#[0-9a-fA-F]{6}$/.test(this.value))p.value=this.value">
+              </div>
+            </div>
+            {% endfor %}
+            <div class="field">
+              <label class="lbl">Bordure (clair)</label>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input type="color" id="f-light_border_color-picker" value="{{ config.light_border_color|default:'#e5e5ea' }}" style="width:36px;height:34px;padding:2px;border-radius:6px;border:1px solid var(--border);background:none;cursor:pointer;" {% if not can_edit %}disabled{% endif %} oninput="document.getElementById('f-light_border_color').value=this.value">
+                <input type="text" id="f-light_border_color" value="{{ config.light_border_color }}" placeholder="(vide = sans bordure)" {% if not can_edit %}disabled{% endif %} style="flex:1;">
               </div>
             </div>
           </div>
           {% if can_edit %}
           <div class="divider"></div>
-          <button class="btn btn-primary" onclick="saveConfig()">Enregistrer</button>
+          <button class="btn btn-primary" onclick="saveConfig()">Enregistrer l'apparence</button>
           {% endif %}
         </div>
       </div>

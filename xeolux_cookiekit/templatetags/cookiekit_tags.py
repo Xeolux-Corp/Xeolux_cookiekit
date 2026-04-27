@@ -66,50 +66,80 @@ def _build_css_vars(style: dict) -> str:
     radius = style.get("border_radius", "14px")
     if not re.match(r'^[\d.]+(%|px|em|rem|vw|vh)?$', str(radius)):
         radius = "14px"
+    radius_mobile = style.get("border_radius_mobile", "0px")
+    if not re.match(r'^[\d.]+(%|px|em|rem|vw|vh)?$', str(radius_mobile)):
+        radius_mobile = "0px"
+
+    max_width = style.get("max_width", "680px")
+    if not re.match(r'^[\d.]+(%|px|em|rem|vw|vh|ch)?$', str(max_width)):
+        max_width = "680px"
+    font_size = style.get("font_size", "15px")
+    if not re.match(r'^[\d.]+(%|px|em|rem)?$', str(font_size)):
+        font_size = "15px"
+    padding = style.get("padding", "1.5rem 2rem")
+    if not re.match(r'^[\d.\s]+(%|px|em|rem|vw|vh)?$', str(padding)):
+        padding = "1.5rem 2rem"
 
     color_scheme = style.get("color_scheme", "dark")  # dark | light | auto
 
-    # Couleurs configurées par l'utilisateur (utilisées uniquement en mode dark/custom)
+    # ── Palette sombre (configurée par l'admin) ──────────────────────────
     bg       = _safe_color(style.get("background_color", "#111111"))
     text     = _safe_color(style.get("text_color", "#ffffff"))
     primary  = _safe_color(style.get("primary_color", "#ff6b00"))
     p_text   = _safe_color(style.get("primary_text_color", "#ffffff"))
     sec      = _safe_color(style.get("secondary_color", "#2b2b2b"))
     sec_text = _safe_color(style.get("secondary_text_color", "#ffffff"))
+    border_dark = _safe_color(style.get("border_color", ""))
 
-    # Valeurs light prédéfinies (thème clair Apple-style)
-    _LIGHT = {
-        "bg": "#f5f5f7", "text": "#1d1d1f",
-        "primary": "#e05e00", "primary_text": "#ffffff",
-        "secondary": "#e0e0e5", "secondary_text": "#1d1d1f",
-    }
+    # ── Palette claire (configurable depuis v1.2.4) ───────────────────────
+    l_bg       = _safe_color(style.get("light_background_color", "#f5f5f7"))
+    l_text     = _safe_color(style.get("light_text_color", "#1d1d1f"))
+    l_primary  = _safe_color(style.get("light_primary_color", "#e05e00"))
+    l_p_text   = _safe_color(style.get("light_primary_text_color", "#ffffff"))
+    l_sec      = _safe_color(style.get("light_secondary_color", "#e0e0e5"))
+    l_sec_text = _safe_color(style.get("light_secondary_text_color", "#1d1d1f"))
+    border_light = _safe_color(style.get("light_border_color", "#e5e5ea"))
 
     def _vars_block(scheme: str) -> list[str]:
         """Retourne les lignes de variables pour un schéma donné."""
         if scheme == "light":
-            return [
-                f"  --xck-bg: {_LIGHT['bg']};",
-                f"  --xck-text: {_LIGHT['text']};",
-                f"  --xck-primary: {_LIGHT['primary']};",
-                f"  --xck-primary-text: {_LIGHT['primary_text']};",
-                f"  --xck-secondary: {_LIGHT['secondary']};",
-                f"  --xck-secondary-text: {_LIGHT['secondary_text']};",
+            lines = [
+                f"  --xck-bg: {l_bg or '#f5f5f7'};",
+                f"  --xck-text: {l_text or '#1d1d1f'};",
+                f"  --xck-primary: {l_primary or '#e05e00'};",
+                f"  --xck-primary-text: {l_p_text or '#ffffff'};",
+                f"  --xck-secondary: {l_sec or '#e0e0e5'};",
+                f"  --xck-secondary-text: {l_sec_text or '#1d1d1f'};",
             ]
+            if border_light:
+                lines.append(f"  --xck-border: 1px solid {border_light};")
+            else:
+                lines.append("  --xck-border: none;")
+            return lines
         # dark : utilise les couleurs configurées par l'admin
-        return [
-            f"  --xck-bg: {bg};",
-            f"  --xck-text: {text};",
-            f"  --xck-primary: {primary};",
-            f"  --xck-primary-text: {p_text};",
-            f"  --xck-secondary: {sec};",
-            f"  --xck-secondary-text: {sec_text};",
+        lines = [
+            f"  --xck-bg: {bg or '#111111'};",
+            f"  --xck-text: {text or '#ffffff'};",
+            f"  --xck-primary: {primary or '#ff6b00'};",
+            f"  --xck-primary-text: {p_text or '#ffffff'};",
+            f"  --xck-secondary: {sec or '#2b2b2b'};",
+            f"  --xck-secondary-text: {sec_text or '#ffffff'};",
         ]
+        if border_dark:
+            lines.append(f"  --xck-border: 1px solid {border_dark};")
+        else:
+            lines.append("  --xck-border: none;")
+        return lines
 
     common = [
         f"  --xck-radius: {radius};",
+        f"  --xck-radius-mobile: {radius_mobile};",
         f"  --xck-z-index: {z_index};",
         f"  --xck-shadow: {shadow_val};",
         f"  --xck-font: {_font_family(style.get('font_family', 'system'))};",
+        f"  --xck-font-size: {font_size};",
+        f"  --xck-padding: {padding};",
+        f"  --xck-max-width: {max_width};",
     ]
 
     if color_scheme == "light":

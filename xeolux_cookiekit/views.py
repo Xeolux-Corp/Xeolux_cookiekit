@@ -50,16 +50,27 @@ def _has_cookiekit_change_permission(user) -> bool:
 
 _BOOL_FIELDS = {
     "enabled", "cookie_secure", "cookie_signing_enabled", "shadow",
-    "banner_backdrop_blur",
+    "banner_backdrop_blur", "banner_overlay",
 }
 _SCALAR_FIELDS = {
     "consent_version", "cookie_max_age_days", "cookie_samesite",
     "banner_position", "banner_layout", "banner_color_scheme", "banner_animation",
     "dashboard_theme",
+    # Palette sombre
     "background_color", "text_color", "primary_color", "primary_text_color",
-    "secondary_color", "border_radius",
+    "secondary_color", "secondary_text_color", "banner_border_color",
+    # Palette claire
+    "light_background_color", "light_text_color", "light_primary_color",
+    "light_primary_text_color", "light_secondary_color", "light_secondary_text_color",
+    "light_border_color",
+    # Options avancées bandeau
+    "border_radius", "banner_border_radius_mobile",
+    "banner_max_width", "banner_font_size", "banner_padding",
+    "font_family", "z_index",
+    # Textes
     "title", "message",
     "accept_all_label", "reject_all_label", "customize_label",
+    "save_label", "close_label", "preferences_title", "privacy_policy_label",
     "privacy_policy_url",
 }
 
@@ -201,20 +212,44 @@ def cookiekit_dashboard(request):
     custom_scripts = CookieScript.objects.all().order_by("position", "order", "name")
     cachekit_status = _get_cachekit_status(config)
 
+    # Version de consentement résolue (CacheKit en priorité si sync active)
+    resolved_consent_version = None
+    if (
+        config
+        and config.cachekit_enabled
+        and config.cachekit_sync_cookie_version
+        and cachekit_status.get("version")
+    ):
+        resolved_consent_version = cachekit_status["version"]
+    elif config:
+        resolved_consent_version = config.consent_version
+
     color_fields: list = []
+    light_color_fields: list = []
     if config:
         color_fields = [
-            ("background_color", "Couleur de fond", config.background_color),
-            ("text_color", "Couleur du texte", config.text_color),
-            ("primary_color", "Couleur primaire (boutons)", config.primary_color),
-            ("primary_text_color", "Texte bouton primaire", config.primary_text_color),
-            ("secondary_color", "Couleur secondaire", config.secondary_color),
+            ("background_color", "Fond sombre", config.background_color),
+            ("text_color", "Texte sombre", config.text_color),
+            ("primary_color", "Primaire sombre", config.primary_color),
+            ("primary_text_color", "Texte primaire sombre", config.primary_text_color),
+            ("secondary_color", "Secondaire sombre", config.secondary_color),
+            ("secondary_text_color", "Texte secondaire sombre", config.secondary_text_color),
+        ]
+        light_color_fields = [
+            ("light_background_color", "Fond clair", config.light_background_color),
+            ("light_text_color", "Texte clair", config.light_text_color),
+            ("light_primary_color", "Primaire clair", config.light_primary_color),
+            ("light_primary_text_color", "Texte primaire clair", config.light_primary_text_color),
+            ("light_secondary_color", "Secondaire clair", config.light_secondary_color),
+            ("light_secondary_text_color", "Texte secondaire clair", config.light_secondary_text_color),
         ]
 
     ctx = {
         "config": config,
         "can_edit": can_edit,
         "color_fields": color_fields,
+        "light_color_fields": light_color_fields,
+        "resolved_consent_version": resolved_consent_version,
         "integrations": integrations,
         "integrations_by_category": integrations_by_category,
         "integrations_active_count": integrations.filter(enabled=True).count(),
