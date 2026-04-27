@@ -10,7 +10,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-66%20passed-brightgreen)](tests/)
 
-Bandeau cookies moderne, configurable depuis l'**admin Django**, sécurisé par **HMAC-SHA256**, conforme **RGPD/CNIL**, avec **30 intégrations tierces** et un tableau de bord `/cookiekit/` intégré.
+Bandeau cookies moderne, configurable depuis l'**admin Django**, sécurisé par **HMAC-SHA256**, conforme **RGPD/CNIL**, avec **71 intégrations tierces** et un tableau de bord `/cookiekit/` intégré.
 
 </div>
 
@@ -22,7 +22,7 @@ Bandeau cookies moderne, configurable depuis l'**admin Django**, sécurisé par 
 - **Configurable depuis l'admin Django** — zéro code côté settings pour tout sauf `enabled`
 - **RGPD/CNIL** — analytics opt-in uniquement, durée max 395 jours (13 mois) respectée
 - **HMAC-SHA256** — cookie signé côté serveur, cookie HttpOnly anti-falsification
-- **30 intégrations** — GA4, GTM, Meta Pixel, LinkedIn, TikTok, X/Twitter, Matomo, Plausible, Clarity, Hotjar, Crisp, Mixpanel, Amplitude, PostHog, Intercom, Zendesk, et plus
+- **71 intégrations** — Analytics, Session replay, Marketing pixels, Chat, CDP, A/B testing, Push notifications, Email tracking et plus
 - **API JavaScript** — `hasConsent()`, `acceptAll()`, `rejectAll()`, événement `xeolux:cookies:updated`
 - **Versioning du consentement** — le bandeau réapparaît si la version change
 - **Compatibilité xeolux-cachekit** — cache-busting statiques + cookies versionnés, synchronisation de la version de consentement via `get_cache_version("cookies")`
@@ -169,7 +169,7 @@ Accédez à `/admin/xeolux_cookiekit/cookiekitconfig/` pour tout configurer visu
 | **🔒 Sécurité du cookie** | Signature HMAC-SHA256 (activée par défaut) |
 | **Apparence** | Couleurs, position, layout, ombres, police |
 | **Textes** | Labels des boutons, titres, lien politique de confidentialité |
-| **Intégrations tierces** | Lien vers la gestion des 30 intégrations |
+| **Intégrations tierces** | Lien vers la gestion des 71 intégrations |
 | **Scripts personnalisés** | HTML/JS `<head>` et `<body>` après consentement |
 | **CacheKit / Versioning** | Synchronisation avec xeolux-cachekit |
 | **AnalyticsKit** | Bridge vers xeolux-analyticskit (futur) |
@@ -229,7 +229,7 @@ Ou par groupe — créez un groupe `CookieKit Editors` avec cette permission et 
 
 Les intégrations sont gérées via le modèle **`CookieKitIntegration`** (Admin → Intégrations). Chaque script est injecté **uniquement après consentement** à la catégorie correspondante. Aucune migration DB nécessaire pour ajouter une intégration.
 
-### Analytics
+### Analytics & statistiques web
 
 | Intégration | Catégorie | Config JSON |
 |---|---|---|
@@ -239,18 +239,55 @@ Les intégrations sont gérées via le modèle **`CookieKitIntegration`** (Admin
 | **Plausible Analytics** | `analytics` | `domain`, `script_url` |
 | **Microsoft Clarity** | `analytics` | `project_id` |
 | **Hotjar** | `analytics` | `site_id` |
+| **Umami Analytics** | `analytics` | `website_id`, `script_url` |
+| **Fathom Analytics** | `analytics` | `site_id` |
+| **Cloudflare Web Analytics** | `analytics` | `token` |
+| **HubSpot Tracking** | `analytics` | `portal_id` |
+| **Simple Analytics** | `analytics` | `hostname` *(optionnel)* |
+| **Clicky** | `analytics` | `site_id` |
+| **StatCounter** | `analytics` | `project`, `security` |
+| **Woopra** | `analytics` | `domain` |
+| **Countly** | `analytics` | `app_key`, `server_url` |
+| **Adobe Analytics** | `analytics` | `script_url` |
+| **Piwik PRO** | `analytics` | `container_id`, `container_url` |
+
+### Product analytics / session replay
+
+| Intégration | Catégorie | Config JSON |
+|---|---|---|
 | **Mixpanel** | `analytics` | `project_token` |
 | **Amplitude** | `analytics` | `api_key` |
 | **PostHog** | `analytics` | `api_key`, `host` |
-| **Umami Analytics** | `analytics` | `website_id`, `script_url` |
-| **Fathom Analytics** | `analytics` | `site_id` |
 | **Segment** | `analytics` | `write_key` |
 | **Heap Analytics** | `analytics` | `app_id` |
 | **FullStory** | `analytics` | `org_id` |
-| **Cloudflare Web Analytics** | `analytics` | `token` |
-| **HubSpot Tracking** | `analytics` | `portal_id` |
+| **Smartlook** | `analytics` | `project_key` |
+| **Mouseflow** | `analytics` | `website_id` |
+| **Crazy Egg** | `analytics` | `account_number` |
+| **Lucky Orange** | `analytics` | `site_id` |
+| **LogRocket** | `analytics` | `app_id` |
+| **Pendo** | `analytics` | `api_key` |
+| **Kissmetrics** | `analytics` | `api_key` |
+| **OpenReplay** | `analytics` | `project_key`, `ingest_point` |
+| **Inspectlet** | `analytics` | `wid` |
 
-### Marketing
+### CDP / Data routing
+
+| Intégration | Catégorie | Config JSON |
+|---|---|---|
+| **RudderStack** | `analytics` | `write_key`, `data_plane_url` |
+| **Snowplow** | `analytics` | `collector_url`, `app_id` |
+
+### A/B testing
+
+| Intégration | Catégorie | Config JSON |
+|---|---|---|
+| **Optimizely Web** | `analytics` | `project_id` |
+| **VWO** | `analytics` | `account_id` |
+| **AB Tasty** | `analytics` | `account_id` |
+| **GrowthBook** | `analytics` | `client_key`, `api_host` |
+
+### Marketing & publicité
 
 | Intégration | Catégorie | Config JSON |
 |---|---|---|
@@ -263,8 +300,20 @@ Les intégrations sont gérées via le modèle **`CookieKitIntegration`** (Admin
 | **Reddit Pixel** | `marketing` | `advertiser_id` |
 | **Quora Pixel** | `marketing` | `pixel_id` |
 | **Brevo Tracker** | `marketing` | `client_key` |
+| **Google Ads Conversion** | `marketing` | `conversion_id`, `conversion_label` |
+| **Microsoft Advertising UET** | `marketing` | `tag_id` |
+| **Criteo OneTag** | `marketing` | `account_id` |
+| **AdRoll Pixel** | `marketing` | `adroll_adv_id`, `adroll_pix_id` |
+| **The Trade Desk** | `marketing` | `advertiser_id` |
+| **Taboola Pixel** | `marketing` | `account_id` |
+| **Outbrain Pixel** | `marketing` | `account_id` |
+| **Amazon Ads Insight Tag** | `marketing` | `advertiser_id` |
+| **Klaviyo** | `marketing` | `public_api_key` |
+| **Mailchimp Web Tracking** | `marketing` | `u`, `id` |
+| **ActiveCampaign Site Tracking** | `marketing` | `account_id`, `tracking_url` |
+| **Customer.io Tracking** | `marketing` | `site_id` |
 
-### Support / Chat
+### Support / Chat & push
 
 | Intégration | Catégorie | Config JSON |
 |---|---|---|
@@ -273,6 +322,13 @@ Les intégrations sont gérées via le modèle **`CookieKitIntegration`** (Admin
 | **Zendesk Chat** | `preferences` | `key` |
 | **Tidio Chat** | `preferences` | `public_key` |
 | **Freshchat** | `preferences` | `token`, `host` |
+| **LiveChat** | `preferences` | `license` |
+| **Drift** | `preferences` | `embed_id` |
+| **tawk.to** | `preferences` | `property_id` |
+| **Smartsupp** | `preferences` | `key` |
+| **Olark** | `preferences` | `site_id` |
+| **OneSignal** | `preferences` | `app_id` |
+| **PushEngage** | `preferences` | `api_key` |
 
 ### Activation depuis l'admin
 
@@ -475,6 +531,10 @@ pytest
 ---
 
 ## Changelog
+
+### v1.2.0 (2026)
+- **71 intégrations** (+41 nouvelles) : Simple Analytics, Clicky, StatCounter, Woopra, Countly, Adobe Analytics, Piwik PRO, Smartlook, Mouseflow, Crazy Egg, Lucky Orange, LogRocket, Pendo, Kissmetrics, OpenReplay, Inspectlet, Google Ads Conversion, Microsoft UET, Criteo OneTag, AdRoll, The Trade Desk, Taboola, Outbrain, Amazon Ads, Klaviyo, Mailchimp Tracking, ActiveCampaign, Customer.io, LiveChat, Drift, tawk.to, Smartsupp, Olark, RudderStack, Snowplow, Optimizely, VWO, AB Tasty, GrowthBook, OneSignal, PushEngage
+- Couvre désormais : analytics web, product analytics, session replay/heatmaps, marketing pixels, CDPs, A/B testing, push notifications, email marketing tracking, chat
 
 ### v1.1.5 (2026)
 - **Fix intégration xeolux-cachekit** : corrige l'appel API (`get_cache_version()` à la place de l'ancienne `get_version()`) dans `views.py` et `admin.py`
