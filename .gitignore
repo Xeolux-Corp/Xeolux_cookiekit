@@ -1,0 +1,117 @@
+# ─── Python ────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+*.egg
+MANIFEST
+.eggs/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+.env/
+.python-version
+
+# ─── Django ────────────────────────────────────────────────────────────────
+*.sqlite3
+*.db
+db.sqlite3
+local_settings.py
+staticfiles/
+mediafiles/
+media/
+
+# ─── Tests & Coverage ──────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.cover
+*.py,cover
+nosetests.xml
+test-results/
+.tox/
+.nox/
+
+# ─── Linting & type checking ───────────────────────────────────────────────
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.ruff_cache/
+.pyright/
+
+# ─── IDE & Editors ─────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ─── macOS ─────────────────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# ─── Logs ──────────────────────────────────────────────────────────────────
+*.log
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ─── Secrets & Credentials ─────────────────────────────────────────────────
+.env
+.env.*
+*.pem
+*.key
+secrets.json
+credentials.json
+.netrc
+
+# ─── Documentation build ───────────────────────────────────────────────────
+docs/_build/
+docs/site/
+site/
+
+# ─── Node (si front-end dev) ───────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp.*
+.yarn/
+
+# ─── Jupyter ───────────────────────────────────────────────────────────────
+.ipynb_checkpoints
+*.ipynb
+
+# ─── Celery ────────────────────────────────────────────────────────────────
+celerybeat-schedule
+celerybeat.pid
+
+# ─── Sentry ────────────────────────────────────────────────────────────────
+.sentryclirc

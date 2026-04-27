@@ -1,0 +1,51 @@
+{% load static %}
+{% if enabled %}
+<!-- xeolux_cookiekit — bandeau consentement -->
+<div id="xck-banner"
+     class="xck-banner xck-banner--{{ style.position|default:'bottom' }} xck-banner--{{ style.layout|default:'banner' }}"
+     role="dialog"
+     aria-modal="false"
+     aria-labelledby="xck-banner-title"
+     aria-describedby="xck-banner-desc"
+     hidden>
+
+  <div class="xck-banner__inner">
+
+    <div class="xck-banner__content">
+      <p class="xck-banner__title" id="xck-banner-title">
+        {{ texts.title|default:"Gestion des cookies" }}
+      </p>
+      <p class="xck-banner__message" id="xck-banner-desc">
+        {{ texts.message|default:"Nous utilisons des cookies pour améliorer votre expérience." }}
+        {% if config.privacy_policy_url %}
+          <a href="{{ config.privacy_policy_url }}"
+             class="xck-banner__policy-link"
+             target="_blank"
+             rel="noopener noreferrer">{{ texts.privacy_policy|default:"Politique de confidentialité" }}</a>
+        {% endif %}
+        aria-label="{{ texts.reject_all|default:'Tout refuser' }}">
+        {{ texts.reject_all|default:"Tout refuser" }}
+      </button>
+      <button
+        type="button"
+        class="xck-button xck-button--ghost"
+        id="xck-btn-customize"
+        aria-expanded="false"
+        aria-controls="xck-modal"
+        aria-label="{{ texts.customize|default:'Personnaliser' }}">
+        {{ texts.customize|default:"Personnaliser" }}
+      </button>
+      <button
+        type="button"
+        class="xck-button xck-button--primary"
+        id="xck-btn-accept"
+        aria-label="{{ texts.accept_all|default:'Tout accepter' }}">
+        {{ texts.accept_all|default:"Tout accepter" }}
+      </button>
+    </div>
+
+  </div>
+</div>
+
+{% include "xeolux_cookiekit/preferences_modal.html" %}
+{% endif %}

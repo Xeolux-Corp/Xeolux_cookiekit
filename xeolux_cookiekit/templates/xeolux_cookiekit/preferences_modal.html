@@ -1,0 +1,75 @@
+<!-- xeolux_cookiekit — modal préférences -->
+<div id="xck-modal"
+     class="xck-modal"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="xck-modal-title"
+     hidden>
+
+  <div class="xck-modal__backdrop" id="xck-modal-backdrop" aria-hidden="true"></div>
+
+  <div class="xck-modal__dialog">
+
+    <div class="xck-modal__header">
+      <h2 class="xck-modal__title" id="xck-modal-title">
+        {{ texts.preferences_title|default:"Préférences cookies" }}
+      </h2>
+      <button
+        type="button"
+        class="xck-modal__close"
+        id="xck-modal-close"
+        aria-label="{{ texts.close|default:'Fermer' }}">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+          <path d="M1 1L17 17M17 1L1 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="xck-modal__body" id="xck-categories-list">
+      {% for key, cat in categories.items %}
+      <div class="xck-category{% if cat.required %} xck-category--required{% endif %}" data-category="{{ key }}">
+        <div class="xck-category__info">
+          <span class="xck-category__label">{{ cat.label }}</span>
+          {% if cat.required %}
+            <span class="xck-category__badge">{{ texts.required_label|default:"Toujours actif" }}</span>
+          {% endif %}
+          {% if cat.description %}
+            <p class="xck-category__desc">{{ cat.description }}</p>
+          {% endif %}
+        </div>
+        <label class="xck-toggle" aria-label="{{ cat.label }}">
+          <input
+            type="checkbox"
+            class="xck-toggle__input"
+            name="xck-cat-{{ key }}"
+            id="xck-cat-{{ key }}"
+            data-category="{{ key }}"
+            {% if cat.required %}checked disabled{% elif cat.enabled %}checked{% endif %}
+            {% if cat.required %}aria-disabled="true"{% endif %}>
+          <span class="xck-toggle__track" aria-hidden="true">
+            <span class="xck-toggle__thumb"></span>
+          </span>
+        </label>
+      </div>
+      {% empty %}
+        <p class="xck-modal__empty">Aucune catégorie configurée.</p>
+      {% endfor %}
+    </div>
+
+    <div class="xck-modal__footer">
+      <button
+        type="button"
+        class="xck-button xck-button--secondary"
+        id="xck-modal-reject">
+        {{ texts.reject_all|default:"Tout refuser" }}
+      </button>
+      <button
+        type="button"
+        class="xck-button xck-button--primary"
+        id="xck-modal-save">
+        {{ texts.save|default:"Enregistrer mes choix" }}
+      </button>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,5 @@
+include README.md
+include LICENSE
+recursive-include xeolux_cookiekit/static *
+recursive-include xeolux_cookiekit/templates *
+recursive-include xeolux_cookiekit/templatetags *

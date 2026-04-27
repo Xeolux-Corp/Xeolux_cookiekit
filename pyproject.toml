@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xeolux-cookiekit"
+version = "1.0.0"
+description = "Package Django pour la gestion du consentement cookies (RGPD/CNIL) — bandeau moderne, admin Django, intégrations GA/GTM/Meta/Matomo/Plausible."
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "Xeolux", email = "contact@xeolux.com" }]
+keywords = ["django", "cookies", "rgpd", "gdpr", "consent", "analytics", "cnil", "cookie-banner"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Django :: 4.2",
+    "Framework :: Django :: 5.0",
+    "Framework :: Django :: 5.1",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+requires-python = ">=3.10"
+dependencies = ["Django>=4.2"]
+
+[project.optional-dependencies]
+cachekit = ["xeolux-cachekit>=1.0.0"]
+dev = [
+    "pytest>=7.4",
+    "pytest-django>=4.7",
+    "coverage>=7.3",
+]
+
+[project.urls]
+Homepage = "https://github.com/Xeolux/xeolux-cookiekit"
+Repository = "https://github.com/Xeolux/xeolux-cookiekit"
+Issues = "https://github.com/Xeolux/xeolux-cookiekit/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["xeolux_cookiekit*"]
+
+[tool.setuptools.package-data]
+"xeolux_cookiekit" = [
+    "static/xeolux_cookiekit/*.css",
+    "static/xeolux_cookiekit/*.js",
+    "templates/xeolux_cookiekit/*.html",
+]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "tests.settings"
+pythonpath = ["."]
+
+[tool.coverage.run]
+source = ["xeolux_cookiekit"]
+omit = ["tests/*"]

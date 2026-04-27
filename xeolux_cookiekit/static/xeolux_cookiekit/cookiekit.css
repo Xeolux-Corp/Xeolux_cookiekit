@@ -1,0 +1,529 @@
+/*
+ * xeolux_cookiekit — cookiekit.css
+ * Bandeau cookies premium, piloté par CSS custom properties.
+ * Toutes les classes sont préfixées xck- pour éviter les conflits.
+ * ─────────────────────────────────────────────────────────────────
+ */
+
+/* ── Reset & custom properties ────────────────────────────────────────────── */
+:root {
+  --xck-bg: #111111;
+  --xck-text: #ffffff;
+  --xck-primary: #ff6b00;
+  --xck-primary-text: #ffffff;
+  --xck-secondary: #2b2b2b;
+  --xck-secondary-text: #ffffff;
+  --xck-radius: 14px;
+  --xck-z-index: 9999;
+  --xck-shadow: 0 8px 40px rgba(0, 0, 0, 0.45);
+  --xck-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+
+  /* Internes */
+  --xck-transition: 280ms cubic-bezier(0.4, 0, 0.2, 1);
+  --xck-overlay: rgba(0, 0, 0, 0.6);
+  --xck-border: rgba(255, 255, 255, 0.08);
+  --xck-toggle-w: 44px;
+  --xck-toggle-h: 24px;
+  --xck-toggle-off: #444;
+  --xck-toggle-thumb: #ffffff;
+}
+
+/* ── Bandeau ──────────────────────────────────────────────────────────────── */
+.xck-banner {
+  position: fixed;
+  z-index: var(--xck-z-index);
+  left: 0;
+  right: 0;
+  font-family: var(--xck-font);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity var(--xck-transition), transform var(--xck-transition);
+}
+
+.xck-banner.xck-visible {
+  pointer-events: auto;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Positions */
+.xck-banner--bottom  { bottom: 0; }
+.xck-banner--top     { top: 0; }
+.xck-banner--top.xck-banner { transform: translateY(-20px); }
+.xck-banner--top.xck-visible { transform: translateY(0); }
+
+.xck-banner--bottom-left {
+  bottom: 20px;
+  left: 20px;
+  right: auto;
+  max-width: 420px;
+}
+
+.xck-banner--bottom-right {
+  bottom: 20px;
+  right: 20px;
+  left: auto;
+  max-width: 420px;
+}
+
+/* ── Banner inner ─────────────────────────────────────────────────────────── */
+.xck-banner__inner {
+  background: var(--xck-bg);
+  color: var(--xck-text);
+  box-shadow: var(--xck-shadow);
+  border-radius: var(--xck-radius) var(--xck-radius) 0 0;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--xck-border);
+}
+
+/* Floating / bottom-left / bottom-right layout */
+.xck-banner--bottom-left .xck-banner__inner,
+.xck-banner--bottom-right .xck-banner__inner {
+  border-radius: var(--xck-radius);
+  border-top: none;
+  border: 1px solid var(--xck-border);
+}
+
+/* Modal centré */
+.xck-banner--modal .xck-banner__inner {
+  border-radius: var(--xck-radius);
+  max-width: 540px;
+  margin: 0 auto;
+  border-top: none;
+  border: 1px solid var(--xck-border);
+}
+
+/* Top */
+.xck-banner--top .xck-banner__inner {
+  border-radius: 0 0 var(--xck-radius) var(--xck-radius);
+  border-top: none;
+  border-bottom: 1px solid var(--xck-border);
+}
+
+/* ── Contenu bandeau ──────────────────────────────────────────────────────── */
+.xck-banner__content {
+  flex: 1 1 280px;
+  min-width: 0;
+}
+
+.xck-banner__title {
+  margin: 0 0 4px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--xck-text);
+  line-height: 1.3;
+}
+
+.xck-banner__message {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--xck-text);
+  opacity: 0.75;
+  line-height: 1.55;
+}
+
+.xck-banner__policy-link {
+  color: var(--xck-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  opacity: 1;
+  margin-left: 4px;
+  white-space: nowrap;
+  font-size: inherit;
+  transition: opacity var(--xck-transition);
+}
+
+.xck-banner__policy-link:hover {
+  opacity: 0.8;
+}
+
+/* ── Actions bandeau ──────────────────────────────────────────────────────── */
+.xck-banner__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+/* ── Boutons ──────────────────────────────────────────────────────────────── */
+.xck-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 18px;
+  font-family: var(--xck-font);
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1;
+  border: none;
+  border-radius: calc(var(--xck-radius) * 0.65);
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background var(--xck-transition),
+    color var(--xck-transition),
+    opacity var(--xck-transition),
+    transform 140ms ease,
+    box-shadow var(--xck-transition);
+  letter-spacing: 0.015em;
+}
+
+.xck-button:focus-visible {
+  outline: 2px solid var(--xck-primary);
+  outline-offset: 3px;
+}
+
+.xck-button:active {
+  transform: scale(0.97);
+}
+
+/* Primaire */
+.xck-button--primary {
+  background: var(--xck-primary);
+  color: var(--xck-primary-text);
+}
+
+.xck-button--primary:hover {
+  filter: brightness(1.12);
+  box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+}
+
+/* Secondaire */
+.xck-button--secondary {
+  background: var(--xck-secondary);
+  color: var(--xck-secondary-text);
+}
+
+.xck-button--secondary:hover {
+  filter: brightness(1.18);
+}
+
+/* Ghost */
+.xck-button--ghost {
+  background: transparent;
+  color: var(--xck-text);
+  border: 1px solid var(--xck-border);
+  opacity: 0.8;
+}
+
+.xck-button--ghost:hover {
+  opacity: 1;
+  background: rgba(255,255,255,0.06);
+}
+
+/* ── Modal overlay ────────────────────────────────────────────────────────── */
+.xck-modal {
+  font-family: var(--xck-font);
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--xck-z-index) + 10);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--xck-transition);
+}
+
+.xck-modal.xck-visible {
+  pointer-events: auto;
+  opacity: 1;
+}
+
+.xck-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--xck-overlay);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+/* ── Modal dialog ─────────────────────────────────────────────────────────── */
+.xck-modal__dialog {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -48%) scale(0.97);
+  transition: transform var(--xck-transition);
+  background: var(--xck-bg);
+  color: var(--xck-text);
+  border-radius: var(--xck-radius);
+  box-shadow: var(--xck-shadow);
+  width: min(520px, calc(100vw - 32px));
+  max-height: calc(100vh - 64px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--xck-border);
+}
+
+.xck-modal.xck-visible .xck-modal__dialog {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* ── Modal header ─────────────────────────────────────────────────────────── */
+.xck-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--xck-border);
+  flex-shrink: 0;
+}
+
+.xck-modal__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+
+.xck-modal__close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--xck-text);
+  opacity: 0.55;
+  padding: 6px;
+  border-radius: 8px;
+  transition: opacity var(--xck-transition), background var(--xck-transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.xck-modal__close:hover { opacity: 1; background: rgba(255,255,255,0.08); }
+.xck-modal__close:focus-visible { outline: 2px solid var(--xck-primary); outline-offset: 2px; }
+
+/* ── Modal body (liste catégories) ───────────────────────────────────────── */
+.xck-modal__body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 8px 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.15) transparent;
+}
+
+.xck-modal__body::-webkit-scrollbar { width: 5px; }
+.xck-modal__body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+
+.xck-modal__empty {
+  padding: 24px;
+  opacity: 0.5;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+/* ── Catégorie ────────────────────────────────────────────────────────────── */
+.xck-category {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 24px;
+  transition: background var(--xck-transition);
+}
+
+.xck-category + .xck-category {
+  border-top: 1px solid var(--xck-border);
+}
+
+.xck-category:hover {
+  background: rgba(255,255,255,0.03);
+}
+
+.xck-category__info {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.xck-category__label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--xck-text);
+  margin-bottom: 2px;
+}
+
+.xck-category__badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--xck-primary);
+  background: rgba(255,107,0,0.12);
+  border-radius: 30px;
+  padding: 1px 8px;
+  margin-left: 6px;
+  vertical-align: middle;
+  letter-spacing: 0.02em;
+}
+
+.xck-category__desc {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  color: var(--xck-text);
+  opacity: 0.55;
+  line-height: 1.5;
+}
+
+/* ── Toggle switch ────────────────────────────────────────────────────────── */
+.xck-toggle {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-top: 2px;
+  position: relative;
+}
+
+.xck-toggle__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.xck-toggle__track {
+  position: relative;
+  display: block;
+  width: var(--xck-toggle-w);
+  height: var(--xck-toggle-h);
+  background: var(--xck-toggle-off);
+  border-radius: 9999px;
+  transition: background var(--xck-transition);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.xck-toggle__thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: calc(var(--xck-toggle-h) - 6px);
+  height: calc(var(--xck-toggle-h) - 6px);
+  background: var(--xck-toggle-thumb);
+  border-radius: 50%;
+  transition: transform var(--xck-transition), box-shadow var(--xck-transition);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.35);
+}
+
+/* Checked state */
+.xck-toggle__input:checked + .xck-toggle__track {
+  background: var(--xck-primary);
+}
+
+.xck-toggle__input:checked + .xck-toggle__track .xck-toggle__thumb {
+  transform: translateX(calc(var(--xck-toggle-w) - var(--xck-toggle-h)));
+}
+
+/* Disabled */
+.xck-toggle__input:disabled + .xck-toggle__track {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.xck-toggle:has(.xck-toggle__input:disabled) {
+  cursor: not-allowed;
+}
+
+.xck-toggle__input:focus-visible + .xck-toggle__track {
+  outline: 2px solid var(--xck-primary);
+  outline-offset: 3px;
+}
+
+/* ── Modal footer ─────────────────────────────────────────────────────────── */
+.xck-modal__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--xck-border);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .xck-banner__inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding: 16px 18px;
+    border-radius: var(--xck-radius) var(--xck-radius) 0 0;
+  }
+
+  .xck-banner__actions {
+    flex-direction: column;
+  }
+
+  .xck-button {
+    width: 100%;
+    justify-content: center;
+    padding: 11px 18px;
+  }
+
+  .xck-banner--bottom-left,
+  .xck-banner--bottom-right {
+    left: 0;
+    right: 0;
+    max-width: none;
+    bottom: 0;
+  }
+
+  .xck-banner--bottom-left .xck-banner__inner,
+  .xck-banner--bottom-right .xck-banner__inner {
+    border-radius: var(--xck-radius) var(--xck-radius) 0 0;
+    border: none;
+    border-top: 1px solid var(--xck-border);
+  }
+
+  .xck-modal__dialog {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    transform: translate(0, 4%) scale(1);
+    width: 100%;
+    border-radius: var(--xck-radius) var(--xck-radius) 0 0;
+    max-height: 88vh;
+  }
+
+  .xck-modal.xck-visible .xck-modal__dialog {
+    transform: translate(0, 0) scale(1);
+  }
+
+  .xck-modal__footer {
+    flex-direction: column;
+  }
+
+  .xck-modal__footer .xck-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 360px) {
+  .xck-banner__title  { font-size: 0.85rem; }
+  .xck-banner__message { font-size: 0.78rem; }
+}
+
+/* ── Reduced motion ───────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .xck-banner,
+  .xck-modal,
+  .xck-modal__dialog,
+  .xck-button,
+  .xck-toggle__track,
+  .xck-toggle__thumb {
+    transition: none;
+  }
+}
