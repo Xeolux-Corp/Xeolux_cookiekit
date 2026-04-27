@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "xeolux-cookiekit"
-version = "1.2.4"
+version = "1.2.5"
 description = "Package Django pour la gestion du consentement cookies (RGPD/CNIL) — bandeau moderne, admin Django, intégrations GA/GTM/Meta/Matomo/Plausible."
 readme = "README.md"
 license = { file = "LICENSE" }

@@ -533,6 +533,12 @@ pytest
 
 ## Changelog
 
+### v1.2.5 (2026)
+- **Fix dashboard : suppression de la fusion ancien/nouveau template** — l'ancien code (v1.2.2) était collé après le nouveau dans `dashboard.html`, causant l'affichage de l'ancienne section Apparence et de l'ancienne sidebar
+- **FontAwesome 6.5** — tous les emojis du dashboard remplacés par des icones FontAwesome (`fa-solid`) : sidebar, card headers, alertes, boutons, topbar
+- **`saveConfig()` complété** — inclut maintenant tous les champs apparus en v1.2.4 (palettes light, options avancées bandeau)
+- **Color pickers sync** — synchronisation bidirectionnelle étendue aux 14 champs couleur (dark + light + bordures)
+
 ### v1.2.4 (2026)
 - **Palette dark/light configurable séparément** — 6 couleurs dark + 6 couleurs light + bordures, chacune éditable depuis le dashboard `/cookiekit/` ou l'admin. Fini le thème clair hardcodé Apple-style.
 - **Plus de paramètres d'apparence** : largeur max (`banner_max_width`), taille du texte (`banner_font_size`), padding interne (`banner_padding`), border radius mobile, overlay sombre, couleur de bordure dark/light, z-index et police maintenant éditables depuis le dashboard

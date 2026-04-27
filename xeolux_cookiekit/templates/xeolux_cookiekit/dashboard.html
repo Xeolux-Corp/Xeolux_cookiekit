@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ page_title }}</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -259,12 +260,12 @@
     Xeolux CookieKit
   </div>
   <div class="topbar-right">
-    <button class="theme-btn" id="themeBtn" title="Changer le thème">☀</button>
+    <button class="theme-btn" id="themeBtn" title="Changer le thème"><i class="fa-solid fa-sun"></i></button>
     <span class="topbar-user">{{ request.user.username }}</span>
     {% if request.user.is_staff %}
-      <a href="/admin/xeolux_cookiekit/" class="btn btn-secondary btn-sm">⚙ Admin</a>
+      <a href="/admin/xeolux_cookiekit/" class="btn btn-secondary btn-sm"><i class="fa-solid fa-gear"></i> Admin</a>
     {% endif %}
-    <a href="/admin/logout/" class="btn btn-secondary btn-sm">Déconnexion</a>
+    <a href="/admin/logout/" class="btn btn-secondary btn-sm"><i class="fa-solid fa-right-from-bracket"></i> Déconnexion</a>
   </div>
 </div>
 
@@ -274,17 +275,17 @@
   <!-- ── Sidebar ── -->
   <nav class="sidebar">
     <div class="sidebar-section">Tableau de bord</div>
-    <div class="sidebar-item active" data-section="overview"><span class="icon">📊</span> Vue d'ensemble</div>
+    <div class="sidebar-item active" data-section="overview"><span class="icon"><i class="fa-solid fa-chart-pie"></i></span> Vue d'ensemble</div>
     <div class="sidebar-section">Configuration</div>
-    <div class="sidebar-item" data-section="general"><span class="icon">⚙</span> Général</div>
-    <div class="sidebar-item" data-section="appearance"><span class="icon">🎨</span> Apparence</div>
-    <div class="sidebar-item" data-section="texts"><span class="icon">✏</span> Textes</div>
+    <div class="sidebar-item" data-section="general"><span class="icon"><i class="fa-solid fa-sliders"></i></span> Général</div>
+    <div class="sidebar-item" data-section="appearance"><span class="icon"><i class="fa-solid fa-palette"></i></span> Apparence</div>
+    <div class="sidebar-item" data-section="texts"><span class="icon"><i class="fa-solid fa-pen"></i></span> Textes</div>
     <div class="sidebar-section">Intégrations</div>
-    <div class="sidebar-item" data-section="integrations"><span class="icon">🔌</span> Intégrations <span style="margin-left:auto;" id="sb-intg-count"></span></div>
-    <div class="sidebar-item" data-section="scripts"><span class="icon">📝</span> Scripts custom</div>
-    <div class="sidebar-item" data-section="categories"><span class="icon">📂</span> Catégories</div>
+    <div class="sidebar-item" data-section="integrations"><span class="icon"><i class="fa-solid fa-plug"></i></span> Intégrations <span style="margin-left:auto;" id="sb-intg-count"></span></div>
+    <div class="sidebar-item" data-section="scripts"><span class="icon"><i class="fa-solid fa-code"></i></span> Scripts custom</div>
+    <div class="sidebar-item" data-section="categories"><span class="icon"><i class="fa-solid fa-tags"></i></span> Catégories</div>
     <div class="sidebar-section">Système</div>
-    <div class="sidebar-item" data-section="cachekit"><span class="icon">📦</span> CacheKit</div>
+    <div class="sidebar-item" data-section="cachekit"><span class="icon"><i class="fa-solid fa-box"></i></span> CacheKit</div>
   </nav>
 
   <!-- ── Main ── -->
@@ -320,7 +321,7 @@
           <div class="stat-label">
             Version consentement
             {% if cachekit_status.installed and config.cachekit_enabled and config.cachekit_sync_cookie_version and cachekit_status.version %}
-            <span title="Version fournie par CacheKit (synchronisation active)" style="color:#f59e0b;font-size:11px;display:block;">⚡ via CacheKit</span>
+            <span title="Version fournie par CacheKit (synchronisation active)" style="color:#f59e0b;font-size:11px;display:block;"><i class="fa-solid fa-bolt"></i> via CacheKit</span>
             {% endif %}
           </div>
         </div>
@@ -329,7 +330,7 @@
 
       {% if not config %}
       <div class="alert alert-warn">
-        <span>⚠</span>
+        <span><i class="fa-solid fa-triangle-exclamation"></i></span>
         <span>Aucune configuration active. Créez une configuration dans <a href="/admin/xeolux_cookiekit/">l'admin</a>.</span>
       </div>
       {% endif %}
@@ -338,7 +339,7 @@
       {% if config %}
       <div class="card">
         <div class="card-header">
-          <span class="card-title">⚙ Configuration active</span>
+          <span class="card-title"><i class="fa-solid fa-gear"></i> Configuration active</span>
           {% if config.enabled %}<span class="badge badge-on"><span class="dot"></span>Activée</span>{% else %}<span class="badge badge-off">Désactivée</span>{% endif %}
         </div>
         <div class="card-body">
@@ -356,16 +357,16 @@
       <!-- CacheKit résumé -->
       <div class="card">
         <div class="card-header">
-          <span class="card-title">📦 CacheKit</span>
+          <span class="card-title"><i class="fa-solid fa-box"></i> CacheKit</span>
           {% if cachekit_status.installed %}<span class="badge badge-on">Installé</span>{% else %}<span class="badge badge-warn">Non installé</span>{% endif %}
         </div>
         <div class="card-body">
           {% if cachekit_status.error %}
-            <div class="alert alert-err"><span>✗</span><span>{{ cachekit_status.error }}</span></div>
+            <div class="alert alert-err"><span><i class="fa-solid fa-xmark"></i></span><span>{{ cachekit_status.error }}</span></div>
           {% elif cachekit_status.version %}
-            <div class="alert alert-ok"><span>✓</span><span>Version résolue : <strong>{{ cachekit_status.version }}</strong> — cette valeur est utilisée comme <code>consent_version</code> à la place du champ admin.</span></div>
+            <div class="alert alert-ok"><span><i class="fa-solid fa-check"></i></span><span>Version résolue : <strong>{{ cachekit_status.version }}</strong> — cette valeur est utilisée comme <code>consent_version</code> à la place du champ admin.</span></div>
           {% elif cachekit_status.installed %}
-            <div class="alert alert-warn"><span>⚠</span><span>CacheKit installé mais synchronisation désactivée. Le champ <code>consent_version</code> admin est utilisé.</span></div>
+            <div class="alert alert-warn"><span><i class="fa-solid fa-triangle-exclamation"></i></span><span>CacheKit installé mais synchronisation désactivée. Le champ <code>consent_version</code> admin est utilisé.</span></div>
           {% endif %}
           <table class="row-table">
             <tr><td style="color:var(--text2);width:180px;">Synchronisation</td><td>{% if config and config.cachekit_enabled %}<span class="badge badge-on">Active</span>{% else %}<span class="badge badge-off">Désactivée</span>{% endif %}</td></tr>
@@ -383,19 +384,19 @@
       <h2 class="section-title">Configuration générale</h2>
       <p class="section-sub">Paramètres du cookie de consentement.</p>
 
-      {% if not config %}<div class="alert alert-warn"><span>⚠</span><span>Aucune configuration active.</span></div>
+      {% if not config %}<div class="alert alert-warn"><span><i class="fa-solid fa-triangle-exclamation"></i></span><span>Aucune configuration active.</span></div>
       {% else %}
-      {% if not can_edit %}<div class="alert alert-warn"><span>⚠</span><span>Accès lecture seule — permission <code>change_cookiekitconfig</code> requise.</span></div>{% endif %}
+      {% if not can_edit %}<div class="alert alert-warn"><span><i class="fa-solid fa-triangle-exclamation"></i></span><span>Accès lecture seule — permission <code>change_cookiekitconfig</code> requise.</span></div>{% endif %}
 
       <div class="card">
-        <div class="card-header"><span class="card-title">⚙ Paramètres cookie</span></div>
+        <div class="card-header"><span class="card-title"><i class="fa-solid fa-sliders"></i> Paramètres cookie</span></div>
         <div class="card-body">
           <div class="form-grid">
             <div class="field">
               <label class="lbl">Version de consentement</label>
               <input type="text" id="f-consent_version" value="{{ config.consent_version }}" {% if not can_edit %}disabled{% endif %}>
               {% if cachekit_status.version %}
-              <span style="font-size:11px;color:var(--yellow);margin-top:3px;">⚡ CacheKit actif — cette valeur est remplacée par <strong>{{ cachekit_status.version }}</strong></span>
+              <span style="font-size:11px;color:var(--yellow);margin-top:3px;"><i class="fa-solid fa-bolt"></i> CacheKit actif — cette valeur est remplacée par <strong>{{ cachekit_status.version }}</strong></span>
               {% endif %}
             </div>
             <div class="field">
@@ -447,32 +448,32 @@
       {% if config %}
       <!-- ── Thème & Layout ─────────────────────────────────────── -->
       <div class="card">
-        <div class="card-header"><span class="card-title">🎨 Thème &amp; Layout</span></div>
+        <div class="card-header"><span class="card-title"><i class="fa-solid fa-palette"></i> Thème &amp; Layout</span></div>
         <div class="card-body">
           <div class="form-grid-3">
             <div class="field">
               <label class="lbl">Thème bandeau</label>
               <select id="f-banner_color_scheme" {% if not can_edit %}disabled{% endif %}>
-                <option value="dark" {% if config.banner_color_scheme == "dark" %}selected{% endif %}>🌙 Sombre</option>
-                <option value="light" {% if config.banner_color_scheme == "light" %}selected{% endif %}>☀ Clair</option>
-                <option value="auto" {% if config.banner_color_scheme == "auto" %}selected{% endif %}>⚡ Auto (OS)</option>
+                <option value="dark" {% if config.banner_color_scheme == "dark" %}selected{% endif %}>Sombre</option>
+                <option value="light" {% if config.banner_color_scheme == "light" %}selected{% endif %}>Clair</option>
+                <option value="auto" {% if config.banner_color_scheme == "auto" %}selected{% endif %}>Auto (OS)</option>
               </select>
               <div class="hint">Auto = sombre par défaut, clair si l'OS est en mode clair.</div>
             </div>
             <div class="field">
               <label class="lbl">Thème dashboard</label>
               <select id="f-dashboard_theme" {% if not can_edit %}disabled{% endif %}>
-                <option value="dark" {% if config.dashboard_theme == "dark" %}selected{% endif %}>🌙 Sombre</option>
-                <option value="light" {% if config.dashboard_theme == "light" %}selected{% endif %}>☀ Clair</option>
-                <option value="auto" {% if config.dashboard_theme == "auto" %}selected{% endif %}>⚡ Auto</option>
+                <option value="dark" {% if config.dashboard_theme == "dark" %}selected{% endif %}>Sombre</option>
+                <option value="light" {% if config.dashboard_theme == "light" %}selected{% endif %}>Clair</option>
+                <option value="auto" {% if config.dashboard_theme == "auto" %}selected{% endif %}>Auto</option>
               </select>
             </div>
             <div class="field">
               <label class="lbl">Animation</label>
               <select id="f-banner_animation" {% if not can_edit %}disabled{% endif %}>
-                <option value="slide" {% if config.banner_animation == "slide" %}selected{% endif %}>↑ Glissement</option>
-                <option value="fade" {% if config.banner_animation == "fade" %}selected{% endif %}>✦ Fondu</option>
-                <option value="none" {% if config.banner_animation == "none" %}selected{% endif %}>— Aucune</option>
+                <option value="slide" {% if config.banner_animation == "slide" %}selected{% endif %}>Glissement</option>
+                <option value="fade" {% if config.banner_animation == "fade" %}selected{% endif %}>Fondu</option>
+                <option value="none" {% if config.banner_animation == "none" %}selected{% endif %}>Aucune</option>
               </select>
             </div>
             <div class="field">
@@ -503,7 +504,7 @@
 
       <!-- ── Options avancées ───────────────────────────────────────── -->
       <div class="card">
-        <div class="card-header"><span class="card-title">⚙ Options avancées</span></div>
+        <div class="card-header"><span class="card-title"><i class="fa-solid fa-sliders"></i> Options avancées</span></div>
         <div class="card-body">
           <div class="form-grid-3">
             <div class="field">
@@ -553,7 +554,7 @@
 
       <!-- ── Palette sombre ────────────────────────────────────────── -->
       <div class="card">
-        <div class="card-header"><span class="card-title">🌙 Palette sombre</span><span class="badge badge-off" style="font-size:11px;">Mode dark</span></div>
+        <div class="card-header"><span class="card-title"><i class="fa-solid fa-moon"></i> Palette sombre</span><span class="badge badge-off" style="font-size:11px;">Mode dark</span></div>
         <div class="card-body">
           <div class="form-grid-3">
             {% for field_id, label, value in color_fields %}
@@ -578,7 +579,7 @@
 
       <!-- ── Palette claire ────────────────────────────────────────── -->
       <div class="card">
-        <div class="card-header"><span class="card-title">☀ Palette claire</span><span class="badge badge-on" style="font-size:11px;">Mode light / auto</span></div>
+        <div class="card-header"><span class="card-title"><i class="fa-solid fa-sun"></i> Palette claire</span><span class="badge badge-on" style="font-size:11px;">Mode light / auto</span></div>
         <div class="card-body">
           <p class="hint" style="margin-bottom:12px;">Utilisée quand le thème bandeau est <strong>Clair</strong> ou <strong>Auto</strong> (OS en mode clair). Chaque couleur est configurable indépendamment.</p>
           <div class="form-grid-3">
@@ -678,7 +679,7 @@
           <span class="dot"></span>{% if intg.enabled %}Actif{% else %}Inactif{% endif %}
         </span>
         {% if can_edit %}
-        <button class="btn btn-secondary btn-sm btn-icon" onclick="toggleIntgDetail({{ intg.pk }})" title="Configurer">✎</button>
+        <button class="btn btn-secondary btn-sm btn-icon" onclick="toggleIntgDetail({{ intg.pk }})" title="Configurer"><i class="fa-solid fa-pen"></i></button>
         {% endif %}
       </div>
       {% if can_edit %}
@@ -711,7 +712,7 @@
       <p class="section-sub">Scripts HTML/JS injectés après consentement à une catégorie.</p>
 
       {% if can_edit %}
-      <button class="btn btn-primary" style="margin-bottom:20px;" onclick="openScriptModal(null)">+ Nouveau script</button>
+      <button class="btn btn-primary" style="margin-bottom:20px;" onclick="openScriptModal(null)"><i class="fa-solid fa-plus"></i> Nouveau script</button>
       {% endif %}
 
       {% if not custom_scripts %}
@@ -746,8 +747,8 @@
               </td>
               {% if can_edit %}
               <td style="text-align:right;white-space:nowrap;">
-                <button class="btn btn-secondary btn-sm btn-icon" onclick="openScriptModal({{ s.pk }}, '{{ s.name|escapejs }}', '{{ s.category|escapejs }}', '{{ s.position|escapejs }}', {{ s.order }}, {{ s.enabled|yesno:'true,false' }})" title="Modifier">✎</button>
-                <button class="btn btn-danger btn-sm btn-icon" onclick="deleteScript({{ s.pk }})" title="Supprimer">✕</button>
+                <button class="btn btn-secondary btn-sm btn-icon" onclick="openScriptModal({{ s.pk }}, '{{ s.name|escapejs }}', '{{ s.category|escapejs }}', '{{ s.position|escapejs }}', {{ s.order }}, {{ s.enabled|yesno:'true,false' }})" title="Modifier"><i class="fa-solid fa-pen"></i></button>
+                <button class="btn btn-danger btn-sm btn-icon" onclick="deleteScript({{ s.pk }})" title="Supprimer"><i class="fa-solid fa-xmark"></i></button>
               </td>
               {% endif %}
             </tr>
@@ -814,14 +815,14 @@
 
       {% if not cachekit_status.installed %}
       <div class="alert alert-warn">
-        <span>⚠</span>
+        <span><i class="fa-solid fa-triangle-exclamation"></i></span>
         <div>xeolux-cachekit non installé.<br><code>pip install xeolux-cachekit</code> ou <code>pip install "xeolux-cookiekit[cachekit]"</code></div>
       </div>
       {% else %}
         {% if cachekit_status.error %}
-          <div class="alert alert-err"><span>✗</span><span>{{ cachekit_status.error }}</span></div>
+          <div class="alert alert-err"><span><i class="fa-solid fa-xmark"></i></span><span>{{ cachekit_status.error }}</span></div>
         {% elif cachekit_status.version %}
-          <div class="alert alert-ok"><span>✓</span><span>Version résolue : <strong>{{ cachekit_status.version }}</strong></span></div>
+          <div class="alert alert-ok"><span><i class="fa-solid fa-check"></i></span><span>Version résolue : <strong>{{ cachekit_status.version }}</strong></span></div>
         {% endif %}
       {% endif %}
 
@@ -848,7 +849,7 @@
           </table>
           <div class="divider"></div>
           <div class="alert alert-warn" style="margin-bottom:0;">
-            <span>ℹ</span>
+            <span><i class="fa-solid fa-circle-info"></i></span>
             <div>
               <strong>Comment ça marche :</strong> quand CacheKit est installé et la synchronisation activée,
               la valeur <code>consent_version</code> de l'admin est <strong>ignorée</strong> — c'est la version
@@ -870,7 +871,7 @@
   <div class="modal">
     <div class="modal-header">
       <span class="modal-title" id="scriptModalTitle">Nouveau script</span>
-      <button class="modal-close" onclick="closeScriptModal()">✕</button>
+      <button class="modal-close" onclick="closeScriptModal()"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="sm-id">
@@ -948,11 +949,14 @@ document.querySelectorAll('.sidebar-item').forEach(function(item) {
     localStorage.setItem(KEY, next);
     updateThemeIcon(next);
   });
-  function updateThemeIcon(t) { btn.textContent = t === 'light' ? '🌙' : t === 'auto' ? '⚡' : '☀'; }
+  function updateThemeIcon(t) { btn.innerHTML = t === 'light' ? '<i class="fa-solid fa-moon"></i>' : t === 'auto' ? '<i class="fa-solid fa-circle-half-stroke"></i>' : '<i class="fa-solid fa-sun"></i>'; }
 })();
 
 // ── Color pickers sync ───────────────────────────────────────────────────────
-['background_color','text_color','primary_color','primary_text_color','secondary_color'].forEach(function(f) {
+['background_color','text_color','primary_color','primary_text_color','secondary_color','secondary_text_color',
+ 'light_background_color','light_text_color','light_primary_color','light_primary_text_color',
+ 'light_secondary_color','light_secondary_text_color',
+ 'banner_border_color','light_border_color'].forEach(function(f) {
   var picker = document.getElementById('f-' + f + '-picker');
   var text   = document.getElementById('f-' + f);
   if (!picker || !text) return;
@@ -983,41 +987,63 @@ function api(data) {
 function saveConfig() {
   var d = {
     action: 'save_config',
-    consent_version:     v('f-consent_version'),
-    cookie_max_age_days: parseInt(v('f-cookie_max_age_days')) || 180,
-    cookie_samesite:     v('f-cookie_samesite'),
-    banner_position:     v('f-banner_position'),
-    banner_layout:       v('f-banner_layout'),
-    banner_color_scheme: v('f-banner_color_scheme'),
-    banner_animation:    v('f-banner_animation'),
-    dashboard_theme:     v('f-dashboard_theme'),
-    border_radius:       v('f-border_radius'),
-    background_color:    v('f-background_color'),
-    text_color:          v('f-text_color'),
-    primary_color:       v('f-primary_color'),
-    primary_text_color:  v('f-primary_text_color'),
-    secondary_color:     v('f-secondary_color'),
+    // Général
+    consent_version:      v('f-consent_version'),
+    cookie_max_age_days:  parseInt(v('f-cookie_max_age_days')) || 180,
+    cookie_samesite:      v('f-cookie_samesite'),
+    // Thème & layout
+    banner_position:      v('f-banner_position'),
+    banner_layout:        v('f-banner_layout'),
+    banner_color_scheme:  v('f-banner_color_scheme'),
+    banner_animation:     v('f-banner_animation'),
+    dashboard_theme:      v('f-dashboard_theme'),
+    font_family:          v('f-font_family'),
+    // Options avancées
+    border_radius:         v('f-border_radius'),
+    banner_border_radius_mobile: v('f-banner_border_radius_mobile'),
+    banner_max_width:      v('f-banner_max_width'),
+    banner_font_size:      v('f-banner_font_size'),
+    banner_padding:        v('f-banner_padding'),
+    z_index:               parseInt(v('f-z_index')) || 9999,
+    // Palette sombre
+    background_color:     v('f-background_color'),
+    text_color:           v('f-text_color'),
+    primary_color:        v('f-primary_color'),
+    primary_text_color:   v('f-primary_text_color'),
+    secondary_color:      v('f-secondary_color'),
+    secondary_text_color: v('f-secondary_text_color'),
+    banner_border_color:  v('f-banner_border_color'),
+    // Palette claire
+    light_background_color:     v('f-light_background_color'),
+    light_text_color:           v('f-light_text_color'),
+    light_primary_color:        v('f-light_primary_color'),
+    light_primary_text_color:   v('f-light_primary_text_color'),
+    light_secondary_color:      v('f-light_secondary_color'),
+    light_secondary_text_color: v('f-light_secondary_text_color'),
+    light_border_color:         v('f-light_border_color'),
+    // Textes
     title:               v('f-title'),
     message:             v('f-message'),
     accept_all_label:    v('f-accept_all_label'),
     reject_all_label:    v('f-reject_all_label'),
     customize_label:     v('f-customize_label'),
     privacy_policy_url:  v('f-privacy_policy_url'),
-    enabled:             cb('f-enabled'),
-    cookie_secure:       cb('f-cookie_secure'),
+    // Booleans
+    enabled:               cb('f-enabled'),
+    cookie_secure:         cb('f-cookie_secure'),
     cookie_signing_enabled: cb('f-cookie_signing_enabled'),
-    shadow:              cb('f-shadow'),
-    banner_backdrop_blur: cb('f-banner_backdrop_blur'),
+    shadow:                cb('f-shadow'),
+    banner_backdrop_blur:  cb('f-banner_backdrop_blur'),
+    banner_overlay:        cb('f-banner_overlay'),
   };
   api(d).then(function(r) {
     if (r.ok) {
-      toast('✓ Enregistré', 'ok');
-      // Appliquer le thème dashboard immédiatement
+      toast('Enregistré', 'ok');
       if (d.dashboard_theme) {
         document.documentElement.setAttribute('data-xck-theme', d.dashboard_theme);
         localStorage.setItem('xck_dash_theme', d.dashboard_theme);
       }
-    } else { toast('✗ ' + r.error, 'err'); }
+    } else { toast(r.error, 'err'); }
   });
 }
 
@@ -1033,8 +1059,8 @@ function toggleIntg(id, enabled) {
         b.className = 'badge ' + (enabled ? 'badge-on' : 'badge-off');
         b.innerHTML = '<span class="dot"></span>' + (enabled ? 'Actif' : 'Inactif');
       }
-      toast('✓ ' + (enabled ? 'Activé' : 'Désactivé'), 'ok');
-    } else { toast('✗ ' + r.error, 'err'); }
+      toast((enabled ? 'Activé' : 'Désactivé'), 'ok');
+    } else { toast(r.error, 'err'); }
   });
 }
 
@@ -1050,24 +1076,24 @@ function saveIntgConfig(id) {
     if (inp.value.trim()) cfg[inp.dataset.key] = inp.value.trim();
   });
   api({action:'save_intg_config', id:id, config:cfg}).then(function(r) {
-    if (r.ok) { toast('✓ Configuration enregistrée', 'ok'); toggleIntgDetail(id); }
-    else { toast('✗ ' + r.error, 'err'); }
+    if (r.ok) { toast('Configuration enregistrée', 'ok'); toggleIntgDetail(id); }
+    else { toast(r.error, 'err'); }
   });
 }
 
 // ── Toggle catégorie ─────────────────────────────────────────────────────────
 function toggleCategory(id, enabled) {
   api({action:'toggle_category', id:id, enabled:enabled}).then(function(r) {
-    if (r.ok) toast('✓ ' + (enabled ? 'Activée' : 'Désactivée'), 'ok');
-    else toast('✗ ' + r.error, 'err');
+    if (r.ok) toast((enabled ? 'Activée' : 'Désactivée'), 'ok');
+    else toast(r.error, 'err');
   });
 }
 
 // ── Toggle script ────────────────────────────────────────────────────────────
 function toggleScript(id, enabled) {
   api({action:'toggle_script', id:id, enabled:enabled}).then(function(r) {
-    if (r.ok) toast('✓ ' + (enabled ? 'Activé' : 'Désactivé'), 'ok');
-    else toast('✗ ' + r.error, 'err');
+    if (r.ok) toast((enabled ? 'Activé' : 'Désactivé'), 'ok');
+    else toast(r.error, 'err');
   });
 }
 
@@ -1098,8 +1124,8 @@ function saveScript() {
     enabled: document.getElementById('sm-enabled').checked,
     order: 0,
   }).then(function(r) {
-    if (r.ok) { toast('✓ Script enregistré', 'ok'); closeScriptModal(); setTimeout(function(){location.reload();},800); }
-    else { toast('✗ ' + r.error, 'err'); }
+    if (r.ok) { toast('Script enregistré', 'ok'); closeScriptModal(); setTimeout(function(){location.reload();},800); }
+    else { toast(r.error, 'err'); }
   });
 }
 
@@ -1109,8 +1135,8 @@ function deleteScript(id) {
     if (r.ok) {
       var row = document.getElementById('script-row-' + id);
       if (row) row.remove();
-      toast('✓ Supprimé', 'ok');
-    } else { toast('✗ ' + r.error, 'err'); }
+      toast('Supprimé', 'ok');
+    } else { toast(r.error, 'err'); }
   });
 }
 
@@ -1127,680 +1153,6 @@ function deleteScript(id) {
       badge.textContent = active + '/' + total;
       el.appendChild(badge);
     }
-  }
-})();
-</script>
-
-</body>
-</html>
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ page_title }}</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    /* ── Thème Sombre (défaut) ── */
-    :root, [data-xck-theme="dark"] {
-      --xck-bg:          #0f0f0f;
-      --xck-surface:     #1a1a1a;
-      --xck-surface2:    #222;
-      --xck-border:      #2a2a2a;
-      --xck-text:        #e8e8e8;
-      --xck-muted:       #777;
-      --xck-primary:     #ff6b00;
-      --xck-green:       #22c55e;
-      --xck-yellow:      #f59e0b;
-      --xck-red:         #ef4444;
-      --xck-radius:      12px;
-      --xck-font:        -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      --xck-intg-bg:     rgba(255,255,255,.03);
-      --xck-code-bg:     rgba(255,255,255,.06);
-    }
-
-    /* ── Thème Clair ── */
-    [data-xck-theme="light"] {
-      --xck-bg:          #f5f5f7;
-      --xck-surface:     #ffffff;
-      --xck-surface2:    #f0f0f2;
-      --xck-border:      #d2d2d7;
-      --xck-text:        #1d1d1f;
-      --xck-muted:       #86868b;
-      --xck-primary:     #e05e00;
-      --xck-green:       #1a9e4a;
-      --xck-yellow:      #d97706;
-      --xck-red:         #dc2626;
-      --xck-radius:      12px;
-      --xck-font:        -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      --xck-intg-bg:     rgba(0,0,0,.025);
-      --xck-code-bg:     rgba(0,0,0,.05);
-    }
-
-    /* ── Thème Auto ── */
-    @media (prefers-color-scheme: light) {
-      [data-xck-theme="auto"] {
-        --xck-bg:        #f5f5f7;
-        --xck-surface:   #ffffff;
-        --xck-surface2:  #f0f0f2;
-        --xck-border:    #d2d2d7;
-        --xck-text:      #1d1d1f;
-        --xck-muted:     #86868b;
-        --xck-primary:   #e05e00;
-        --xck-green:     #1a9e4a;
-        --xck-yellow:    #d97706;
-        --xck-red:       #dc2626;
-        --xck-intg-bg:   rgba(0,0,0,.025);
-        --xck-code-bg:   rgba(0,0,0,.05);
-      }
-    }
-    @media (prefers-color-scheme: dark) {
-      [data-xck-theme="auto"] {
-        --xck-bg:        #0f0f0f;
-        --xck-surface:   #1a1a1a;
-        --xck-surface2:  #222;
-        --xck-border:    #2a2a2a;
-        --xck-text:      #e8e8e8;
-        --xck-muted:     #777;
-        --xck-primary:   #ff6b00;
-        --xck-green:     #22c55e;
-        --xck-yellow:    #f59e0b;
-        --xck-red:       #ef4444;
-        --xck-intg-bg:   rgba(255,255,255,.03);
-        --xck-code-bg:   rgba(255,255,255,.06);
-      }
-    }
-
-    body {
-      background: var(--xck-bg);
-      color: var(--xck-text);
-      font-family: var(--xck-font);
-      font-size: 14px;
-      line-height: 1.6;
-      min-height: 100vh;
-      transition: background .2s, color .2s;
-    }
-
-    /* ── Layout ── */
-    .xck-topbar {
-      background: var(--xck-surface);
-      border-bottom: 1px solid var(--xck-border);
-      padding: 14px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    .xck-logo {
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--xck-primary);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .xck-logo-dot { width: 8px; height: 8px; background: var(--xck-primary); border-radius: 50%; }
-    .xck-topbar-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 13px;
-      color: var(--xck-muted);
-    }
-    .xck-user {
-      background: var(--xck-surface2, var(--xck-border));
-      border: 1px solid var(--xck-border);
-      padding: 4px 12px;
-      border-radius: 20px;
-      color: var(--xck-text);
-    }
-    .xck-btn-admin {
-      background: var(--xck-primary);
-      color: #fff;
-      padding: 6px 14px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 12px;
-      transition: opacity .15s;
-    }
-    .xck-btn-admin:hover { opacity: .85; }
-
-    /* ── Toggle thème ── */
-    .xck-theme-toggle {
-      background: var(--xck-surface2, var(--xck-border));
-      border: 1px solid var(--xck-border);
-      color: var(--xck-muted);
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 15px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background .2s;
-    }
-    .xck-theme-toggle:hover { background: var(--xck-border); color: var(--xck-text); }
-
-    /* ── Swatch couleur ── */
-    .xck-swatch { display:inline-flex; align-items:center; gap:6px; }
-    .xck-swatch-dot { width:14px; height:14px; border-radius:4px; border:1px solid var(--xck-border); flex-shrink:0; }
-    .xck-swatch code { font-size:12px; font-family:monospace; }
-
-    /* ── Apparence grid ── */
-    .xck-appear-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:10px; margin-top:4px; }
-    .xck-appear-item { background:var(--xck-surface2,var(--xck-border)); border:1px solid var(--xck-border); border-radius:8px; padding:10px 12px; }
-    .xck-appear-item-label { font-size:11px; color:var(--xck-muted); margin-bottom:4px; text-transform:uppercase; letter-spacing:.04em; }
-    .xck-appear-item-val { font-size:13px; font-weight:600; }
-    .xck-appear-item-val code { font-family:monospace; font-weight:400; }
-    .xck-divider { height:1px; background:var(--xck-border); margin:14px 0; }
-
-    .xck-container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
-
-    /* ── Header ── */
-    .xck-page-header { margin-bottom: 32px; }
-    .xck-page-header h1 {
-      font-size: 22px;
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-    .xck-page-header p { color: var(--xck-muted); font-size: 13px; }
-
-    /* ── Grid ── */
-    .xck-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-    .xck-grid-wide { grid-column: 1 / -1; }
-
-    /* ── Cards ── */
-    .xck-card {
-      background: var(--xck-surface);
-      border: 1px solid var(--xck-border);
-      border-radius: var(--xck-radius);
-      padding: 20px;
-      transition: background .2s, border-color .2s;
-    }
-    .xck-card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 16px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--xck-border);
-    }
-    .xck-card-title {
-      font-size: 13px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: .05em;
-      color: var(--xck-muted);
-    }
-
-    /* ── Stats strip ── */
-    .xck-stats {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 28px;
-      flex-wrap: wrap;
-    }
-    .xck-stat {
-      background: var(--xck-surface);
-      border: 1px solid var(--xck-border);
-      border-radius: var(--xck-radius);
-      padding: 16px 20px;
-      flex: 1;
-      min-width: 160px;
-    }
-    .xck-stat-value {
-      font-size: 28px;
-      font-weight: 800;
-      color: var(--xck-primary);
-      line-height: 1;
-    }
-    .xck-stat-label { font-size: 12px; color: var(--xck-muted); margin-top: 4px; }
-
-    /* ── Status badge ── */
-    .xck-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-    .xck-badge--on  { background: rgba(34,197,94,.15); color: var(--xck-green); border: 1px solid rgba(34,197,94,.25); }
-    .xck-badge--off { background: rgba(239,68,68,.12); color: var(--xck-red);   border: 1px solid rgba(239,68,68,.2); }
-    .xck-badge--warn{ background: rgba(245,158,11,.12); color: var(--xck-yellow); border: 1px solid rgba(245,158,11,.2); }
-    .xck-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-
-    /* ── Config block ── */
-    .xck-config-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 0;
-      border-bottom: 1px solid var(--xck-border);
-    }
-    .xck-config-row:last-child { border-bottom: none; }
-    .xck-config-key { color: var(--xck-muted); font-size: 12px; }
-    .xck-config-val { font-weight: 500; font-size: 13px; font-family: monospace; }
-
-    /* ── Intégrations list ── */
-    .xck-intg-group { margin-bottom: 20px; }
-    .xck-intg-group-label {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      color: var(--xck-muted);
-      margin-bottom: 8px;
-    }
-    .xck-intg-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 9px 12px;
-      background: var(--xck-intg-bg, rgba(255,255,255,.03));
-      border: 1px solid var(--xck-border);
-      border-radius: 8px;
-      margin-bottom: 6px;
-      gap: 8px;
-    }
-    .xck-intg-label { font-size: 13px; font-weight: 500; flex: 1; }
-    .xck-intg-config {
-      font-size: 11px;
-      color: var(--xck-muted);
-      font-family: monospace;
-      max-width: 200px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    /* ── Categories ── */
-    .xck-cat-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--xck-border);
-    }
-    .xck-cat-item:last-child { border-bottom: none; }
-    .xck-cat-info { flex: 1; }
-    .xck-cat-name { font-weight: 600; font-size: 13px; }
-    .xck-cat-desc { font-size: 12px; color: var(--xck-muted); margin-top: 2px; }
-    .xck-cat-required {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: var(--xck-green);
-      background: rgba(34,197,94,.1);
-      border: 1px solid rgba(34,197,94,.2);
-      padding: 2px 6px;
-      border-radius: 4px;
-      margin-top: 4px;
-      display: inline-block;
-    }
-
-    /* ── CacheKit card ── */
-    .xck-cachekit-key {
-      font-family: monospace;
-      background: var(--xck-code-bg, rgba(255,255,255,.06));
-      padding: 2px 8px;
-      border-radius: 4px;
-      color: var(--xck-primary);
-    }
-
-    /* ── Alert ── */
-    .xck-alert {
-      padding: 12px 16px;
-      border-radius: 8px;
-      font-size: 13px;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-    }
-    .xck-alert--warn { background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.25); color: var(--xck-yellow); }
-    .xck-alert--err  { background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.2);  color: var(--xck-red); }
-    .xck-alert--ok   { background: rgba(34,197,94,.08); border: 1px solid rgba(34,197,94,.2);  color: var(--xck-green); }
-
-    /* ── Footer ── */
-    .xck-footer {
-      text-align: center;
-      padding: 32px 0 24px;
-      font-size: 12px;
-      color: var(--xck-muted);
-    }
-    .xck-footer a { color: var(--xck-primary); text-decoration: none; }
-  </style>
-</head>
-<body>
-
-<!-- ── Top bar ── -->
-<div class="xck-topbar">
-  <div class="xck-logo">
-    <div class="xck-logo-dot"></div>
-    Xeolux CookieKit
-  </div>
-  <div class="xck-topbar-right">
-    <button class="xck-theme-toggle" id="xckThemeToggle" title="Changer le thème (dark/light/auto)" aria-label="Basculer le thème">
-      <span id="xckThemeIcon">☀</span>
-    </button>
-    <span class="xck-user">{{ request.user.username }}</span>
-    {% if request.user.is_staff %}
-      <a href="/admin/xeolux_cookiekit/" class="xck-btn-admin">⚙ Admin</a>
-    {% endif %}
-    <a href="/admin/logout/" style="color: var(--xck-muted); text-decoration:none; font-size:12px;">Déconnexion</a>
-  </div>
-</div>
-
-<div class="xck-container">
-
-  <!-- ── Header ── -->
-  <div class="xck-page-header">
-    <h1>Gestion des cookies</h1>
-    <p>Tableau de bord du consentement — accès restreint aux membres autorisés.</p>
-  </div>
-
-  {% if not config %}
-    <div class="xck-alert xck-alert--warn">
-      <span>⚠</span>
-      <span>Aucune configuration active. Allez dans l'admin pour créer et activer une configuration CookieKit.</span>
-    </div>
-  {% endif %}
-
-  <!-- ── Stats ── -->
-  <div class="xck-stats">
-    <div class="xck-stat">
-      <div class="xck-stat-value">{{ integrations_active_count }}</div>
-      <div class="xck-stat-label">Intégrations actives</div>
-    </div>
-    <div class="xck-stat">
-      <div class="xck-stat-value">{{ integrations_total }}</div>
-      <div class="xck-stat-label">Intégrations disponibles</div>
-    </div>
-    <div class="xck-stat">
-      <div class="xck-stat-value">{{ categories.count }}</div>
-      <div class="xck-stat-label">Catégories de cookies</div>
-    </div>
-    {% if config %}
-    <div class="xck-stat">
-      <div class="xck-stat-value" style="font-size:18px;">{{ config.consent_version }}</div>
-      <div class="xck-stat-label">Version de consentement</div>
-    </div>
-    {% endif %}
-  </div>
-
-  <div class="xck-grid">
-
-    <!-- ── Config ── -->
-    {% if config %}
-    <div class="xck-card">
-      <div class="xck-card-header">
-        <span class="xck-card-title">⚙ Configuration</span>
-        <span class="xck-badge xck-badge--on"><span class="xck-dot"></span>Active</span>
-      </div>
-      <div class="xck-config-row">
-        <span class="xck-config-key">Statut</span>
-        {% if config.enabled %}
-          <span class="xck-badge xck-badge--on">Activé</span>
-        {% else %}
-          <span class="xck-badge xck-badge--off">Désactivé</span>
-        {% endif %}
-      </div>
-      <div class="xck-config-row">
-        <span class="xck-config-key">Version consentement</span>
-        <span class="xck-config-val">{{ config.consent_version }}</span>
-      </div>
-      <div class="xck-config-row">
-        <span class="xck-config-key">Nom du cookie</span>
-        <span class="xck-config-val">{{ config.cookie_name }}</span>
-      </div>
-      <div class="xck-config-row">
-        <span class="xck-config-key">Durée</span>
-        <span class="xck-config-val">{{ config.cookie_max_age_days }} jours</span>
-      </div>
-      <div class="xck-config-row">
-        <span class="xck-config-key">Cookie Secure</span>
-        {% if config.cookie_secure %}
-          <span class="xck-badge xck-badge--on">Oui</span>
-        {% else %}
-          <span class="xck-badge xck-badge--warn">Non</span>
-        {% endif %}
-      </div>
-      <div class="xck-config-row">
-        <span class="xck-config-key">SameSite</span>
-        <span class="xck-config-val">{{ config.cookie_samesite }}</span>
-      </div>
-      <div class="xck-config-row">
-        <span class="xck-config-key">Signature HMAC</span>
-        {% if config.cookie_signing_enabled %}
-          <span class="xck-badge xck-badge--on">Activée</span>
-        {% else %}
-          <span class="xck-badge xck-badge--warn">Désactivée</span>
-        {% endif %}
-      </div>
-      <div class="xck-config-row">
-        <span class="xck-config-key">Position bandeau</span>
-        <span class="xck-config-val">{{ config.banner_position }}</span>
-      </div>
-    </div>
-
-    <!-- ── Apparence bandeau ── -->
-    <div class="xck-card">
-      <div class="xck-card-header">
-        <span class="xck-card-title">🎨 Apparence</span>
-        <span class="xck-badge xck-badge--on">
-          <span class="xck-dot"></span>
-          {% if config.banner_color_scheme == "light" %}Clair{% elif config.banner_color_scheme == "auto" %}Auto{% else %}Sombre{% endif %}
-        </span>
-      </div>
-      <div class="xck-appear-grid">
-        <div class="xck-appear-item">
-          <div class="xck-appear-item-label">Thème bandeau</div>
-          <div class="xck-appear-item-val">
-            {% if config.banner_color_scheme == "light" %}☀ Clair{% elif config.banner_color_scheme == "auto" %}⚡ Auto{% else %}🌙 Sombre{% endif %}
-          </div>
-        </div>
-        <div class="xck-appear-item">
-          <div class="xck-appear-item-label">Dashboard</div>
-          <div class="xck-appear-item-val">
-            {% if config.dashboard_theme == "light" %}☀ Clair{% elif config.dashboard_theme == "auto" %}⚡ Auto{% else %}🌙 Sombre{% endif %}
-          </div>
-        </div>
-        <div class="xck-appear-item">
-          <div class="xck-appear-item-label">Animation</div>
-          <div class="xck-appear-item-val">
-            {% if config.banner_animation == "fade" %}✦ Fondu{% elif config.banner_animation == "none" %}— Aucune{% else %}↑ Glissement{% endif %}
-          </div>
-        </div>
-        <div class="xck-appear-item">
-          <div class="xck-appear-item-label">Backdrop blur</div>
-          <div class="xck-appear-item-val">
-            {% if config.banner_backdrop_blur %}<span class="xck-badge xck-badge--on" style="font-size:11px;padding:2px 8px;">On</span>{% else %}<span class="xck-badge xck-badge--off" style="font-size:11px;padding:2px 8px;">Off</span>{% endif %}
-          </div>
-        </div>
-        <div class="xck-appear-item">
-          <div class="xck-appear-item-label">Border radius</div>
-          <div class="xck-appear-item-val"><code>{{ config.border_radius }}</code></div>
-        </div>
-        <div class="xck-appear-item">
-          <div class="xck-appear-item-label">Ombre</div>
-          <div class="xck-appear-item-val">
-            {% if config.shadow %}<span class="xck-badge xck-badge--on" style="font-size:11px;padding:2px 8px;">On</span>{% else %}<span class="xck-badge xck-badge--off" style="font-size:11px;padding:2px 8px;">Off</span>{% endif %}
-          </div>
-        </div>
-      </div>
-      <div class="xck-divider"></div>
-      <div style="font-size:11px;color:var(--xck-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;">Palette</div>
-      {% for field, label, value in color_fields %}
-      <div class="xck-config-row">
-        <span class="xck-config-key">{{ label }}</span>
-        <span class="xck-swatch">
-          <span class="xck-swatch-dot" style="background:{{ value }};"></span>
-          <code>{{ value }}</code>
-        </span>
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
-
-    <!-- ── CacheKit ── -->
-    <div class="xck-card">
-      <div class="xck-card-header">
-        <span class="xck-card-title">📦 CacheKit</span>
-        {% if cachekit_status.installed %}
-          <span class="xck-badge xck-badge--on">Installé</span>
-        {% else %}
-          <span class="xck-badge xck-badge--warn">Non installé</span>
-        {% endif %}
-      </div>
-
-      {% if not cachekit_status.installed %}
-        <div class="xck-alert xck-alert--warn">
-          <span>⚠</span>
-          <div>xeolux-cachekit non installé.<br><code style="font-size:11px;">pip install xeolux-cachekit</code></div>
-        </div>
-      {% else %}
-        {% if cachekit_status.error == "no_get_cache_version" %}
-          <div class="xck-alert xck-alert--warn">
-            <span>⚠</span>
-            <span>Package installé mais <code>get_cache_version()</code> introuvable — vérifiez la version de xeolux-cachekit.</span>
-          </div>
-        {% elif cachekit_status.error %}
-          <div class="xck-alert xck-alert--err">
-            <span>✗</span>
-            <span>Erreur : {{ cachekit_status.error }}</span>
-          </div>
-        {% elif cachekit_status.version %}
-          <div class="xck-alert xck-alert--ok">
-            <span>✓</span>
-            <span>Version résolue : <strong>{{ cachekit_status.version }}</strong></span>
-          </div>
-        {% endif %}
-
-        <div class="xck-config-row">
-          <span class="xck-config-key">Synchronisation</span>
-          {% if config and config.cachekit_enabled %}
-            <span class="xck-badge xck-badge--on">Active</span>
-          {% else %}
-            <span class="xck-badge xck-badge--off">Désactivée</span>
-          {% endif %}
-        </div>
-        <div class="xck-config-row">
-          <span class="xck-config-key">Clé de version</span>
-          <span class="xck-cachekit-key">{{ cachekit_status.key }}</span>
-        </div>
-      {% endif %}
-    </div>
-
-    <!-- ── Catégories ── -->
-    <div class="xck-card">
-      <div class="xck-card-header">
-        <span class="xck-card-title">📂 Catégories de cookies</span>
-        <span style="font-size:12px;color:var(--xck-muted);">{{ categories.count }} catégorie(s)</span>
-      </div>
-      {% for cat in categories %}
-      <div class="xck-cat-item">
-        <div style="padding-top:2px;">
-          {% if cat.enabled or cat.required %}
-            <span class="xck-badge xck-badge--on"><span class="xck-dot"></span></span>
-          {% else %}
-            <span class="xck-badge xck-badge--off"><span class="xck-dot"></span></span>
-          {% endif %}
-        </div>
-        <div class="xck-cat-info">
-          <div class="xck-cat-name">{{ cat.label }} <span style="font-weight:400;color:var(--xck-muted);font-family:monospace;font-size:11px;">({{ cat.key }})</span></div>
-          {% if cat.description %}
-            <div class="xck-cat-desc">{{ cat.description }}</div>
-          {% endif %}
-          {% if cat.required %}
-            <span class="xck-cat-required">Requis</span>
-          {% endif %}
-        </div>
-      </div>
-      {% empty %}
-        <p style="color:var(--xck-muted);font-size:13px;">Aucune catégorie. Lancez <code>manage.py migrate</code>.</p>
-      {% endfor %}
-    </div>
-
-    <!-- ── Intégrations ── -->
-    <div class="xck-card xck-grid-wide">
-      <div class="xck-card-header">
-        <span class="xck-card-title">🔌 Intégrations tierces</span>
-        <span style="font-size:12px;color:var(--xck-muted);">
-          {{ integrations_active_count }} / {{ integrations_total }} actives
-        </span>
-      </div>
-
-      {% if not integrations %}
-        <p style="color:var(--xck-muted);font-size:13px;">Aucune intégration. Lancez <code>manage.py migrate</code>.</p>
-      {% else %}
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:24px;">
-          {% for cat_label, items in integrations_by_category.items %}
-          <div class="xck-intg-group">
-            <div class="xck-intg-group-label">{{ cat_label }}</div>
-            {% for intg in items %}
-            <div class="xck-intg-item">
-              <div style="flex-shrink:0;">
-                {% if intg.enabled %}
-                  <span class="xck-badge xck-badge--on"><span class="xck-dot"></span>Actif</span>
-                {% else %}
-                  <span class="xck-badge xck-badge--off"><span class="xck-dot"></span>Inactif</span>
-                {% endif %}
-              </div>
-              <span class="xck-intg-label">{{ intg.label }}</span>
-              {% if intg.config %}
-                <span class="xck-intg-config">
-                  {% for k, v in intg.config.items %}{% if v %}{{ k }}={{ v|truncatechars:20 }} {% endif %}{% endfor %}
-                </span>
-              {% else %}
-                <span style="font-size:11px;color:var(--xck-muted);">non configuré</span>
-              {% endif %}
-            </div>
-            {% endfor %}
-          </div>
-          {% endfor %}
-        </div>
-      {% endif %}
-    </div>
-
-  </div><!-- /.xck-grid -->
-
-  <div class="xck-footer">
-    Powered by <a href="https://pypi.org/project/xeolux-cookiekit/" target="_blank">xeolux-cookiekit</a>
-    &nbsp;·&nbsp;
-    {% if request.user.is_staff %}
-      <a href="/admin/xeolux_cookiekit/">Administrer →</a>
-    {% endif %}
-  </div>
-
-</div><!-- /.xck-container -->
-
-<script>
-(function () {
-  var html = document.documentElement;
-  var btn  = document.getElementById('xckThemeToggle');
-  var icon = document.getElementById('xckThemeIcon');
-  var KEY  = 'xck_dash_theme';
-
-  // Préférence locale > thème sauvegardé côté serveur
-  var stored = localStorage.getItem(KEY);
-  if (stored) { html.setAttribute('data-xck-theme', stored); }
-  updateIcon(html.getAttribute('data-xck-theme') || 'dark');
-
-  btn.addEventListener('click', function () {
-    var cur  = html.getAttribute('data-xck-theme') || 'dark';
-    var next = cur === 'dark' ? 'light' : cur === 'light' ? 'auto' : 'dark';
-    html.setAttribute('data-xck-theme', next);
-    localStorage.setItem(KEY, next);
-    updateIcon(next);
-  });
-
-  function updateIcon(t) {
-    icon.textContent = t === 'light' ? '🌙' : t === 'auto' ? '⚡' : '☀';
   }
 })();
 </script>
