@@ -23,6 +23,14 @@ from xeolux_cookiekit.conf import get_cookiekit_config
 register = template.Library()
 
 
+@register.filter
+def get_item(dictionary, key):
+    """Filtre pour accéder à un dict par clé dans un template."""
+    if isinstance(dictionary, dict):
+        return dictionary.get(key, "")
+    return ""
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 #  Helpers internes
 # ──────────────────────────────────────────────────────────────────────────────

@@ -1,5 +1,1081 @@
-<!DOCTYPE html>
+{% load cookiekit_tags %}<!DOCTYPE html>
 <html lang="fr" data-xck-theme="{{ config.dashboard_theme|default:'dark' }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ page_title }}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Thèmes ── */
+    :root, [data-xck-theme="dark"] {
+      --bg:        #0d0d0f;
+      --surface:   #17171a;
+      --surface2:  #1f1f24;
+      --border:    #2c2c32;
+      --border2:   #3a3a42;
+      --text:      #e8e8ec;
+      --text2:     #9898a8;
+      --primary:   #ff6b00;
+      --primary-d: #cc5500;
+      --green:     #22c55e;
+      --yellow:    #f59e0b;
+      --red:       #ef4444;
+      --blue:      #3b82f6;
+      --radius:    10px;
+      --font:      -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --input-bg:  #0d0d0f;
+      --code-bg:   rgba(255,255,255,.06);
+      --row-hover: rgba(255,255,255,.03);
+    }
+    [data-xck-theme="light"] {
+      --bg:        #f2f2f5;
+      --surface:   #ffffff;
+      --surface2:  #f7f7fa;
+      --border:    #dadadf;
+      --border2:   #c8c8ce;
+      --text:      #111118;
+      --text2:     #6b6b7a;
+      --primary:   #e05e00;
+      --primary-d: #b34a00;
+      --green:     #16a34a;
+      --yellow:    #d97706;
+      --red:       #dc2626;
+      --blue:      #2563eb;
+      --input-bg:  #f7f7fa;
+      --code-bg:   rgba(0,0,0,.05);
+      --row-hover: rgba(0,0,0,.025);
+    }
+    @media (prefers-color-scheme: light) {
+      [data-xck-theme="auto"] {
+        --bg:#f2f2f5;--surface:#ffffff;--surface2:#f7f7fa;--border:#dadadf;--border2:#c8c8ce;
+        --text:#111118;--text2:#6b6b7a;--primary:#e05e00;--primary-d:#b34a00;
+        --green:#16a34a;--yellow:#d97706;--red:#dc2626;--blue:#2563eb;
+        --input-bg:#f7f7fa;--code-bg:rgba(0,0,0,.05);--row-hover:rgba(0,0,0,.025);
+      }
+    }
+    @media (prefers-color-scheme: dark) {
+      [data-xck-theme="auto"] {
+        --bg:#0d0d0f;--surface:#17171a;--surface2:#1f1f24;--border:#2c2c32;--border2:#3a3a42;
+        --text:#e8e8ec;--text2:#9898a8;--primary:#ff6b00;--primary-d:#cc5500;
+        --green:#22c55e;--yellow:#f59e0b;--red:#ef4444;--blue:#3b82f6;
+        --input-bg:#0d0d0f;--code-bg:rgba(255,255,255,.06);--row-hover:rgba(255,255,255,.03);
+      }
+    }
+
+    body { background:var(--bg); color:var(--text); font-family:var(--font); font-size:14px; line-height:1.5; min-height:100vh; }
+    a { color:var(--primary); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    code { font-family:monospace; font-size:12px; background:var(--code-bg); padding:2px 6px; border-radius:4px; }
+
+    /* ── Topbar ── */
+    .topbar {
+      background:var(--surface);
+      border-bottom:1px solid var(--border);
+      padding:0 24px;
+      height:52px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      position:sticky;
+      top:0;
+      z-index:200;
+    }
+    .topbar-logo { display:flex; align-items:center; gap:8px; font-weight:700; font-size:15px; color:var(--primary); }
+    .topbar-logo-dot { width:8px; height:8px; background:var(--primary); border-radius:50%; }
+    .topbar-right { display:flex; align-items:center; gap:10px; }
+    .topbar-user { background:var(--surface2); border:1px solid var(--border); padding:4px 12px; border-radius:20px; font-size:13px; }
+    .btn { display:inline-flex; align-items:center; gap:6px; padding:7px 14px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; border:none; transition:opacity .15s,background .15s; white-space:nowrap; }
+    .btn:hover { opacity:.85; }
+    .btn-primary { background:var(--primary); color:#fff; }
+    .btn-secondary { background:var(--surface2); border:1px solid var(--border); color:var(--text); }
+    .btn-sm { padding:5px 10px; font-size:12px; }
+    .btn-danger { background:rgba(239,68,68,.15); border:1px solid rgba(239,68,68,.3); color:var(--red); }
+    .btn-icon { width:30px; height:30px; padding:0; justify-content:center; border-radius:7px; }
+    .theme-btn { background:var(--surface2); border:1px solid var(--border); color:var(--text2); width:32px; height:32px; border-radius:8px; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; }
+
+    /* ── Layout avec sidebar ── */
+    .layout { display:flex; min-height:calc(100vh - 52px); }
+
+    .sidebar {
+      width:200px;
+      flex-shrink:0;
+      background:var(--surface);
+      border-right:1px solid var(--border);
+      padding:16px 0;
+      position:sticky;
+      top:52px;
+      height:calc(100vh - 52px);
+      overflow-y:auto;
+    }
+    .sidebar-section { padding:8px 16px 4px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--text2); }
+    .sidebar-item {
+      display:flex;
+      align-items:center;
+      gap:9px;
+      padding:8px 16px;
+      font-size:13px;
+      color:var(--text2);
+      cursor:pointer;
+      border-left:2px solid transparent;
+      transition:color .1s, background .1s;
+      user-select:none;
+    }
+    .sidebar-item:hover { background:var(--row-hover); color:var(--text); }
+    .sidebar-item.active { color:var(--primary); border-left-color:var(--primary); background:rgba(255,107,0,.06); font-weight:600; }
+    .sidebar-item .icon { font-size:14px; width:16px; text-align:center; }
+
+    /* ── Contenu principal ── */
+    .main { flex:1; padding:28px 32px; max-width:960px; }
+
+    /* ── Sections ── */
+    .section { display:none; }
+    .section.active { display:block; }
+
+    /* ── Stats ── */
+    .stats { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:28px; }
+    .stat { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 20px; flex:1; min-width:140px; }
+    .stat-value { font-size:26px; font-weight:800; color:var(--primary); line-height:1; }
+    .stat-label { font-size:11px; color:var(--text2); margin-top:4px; text-transform:uppercase; letter-spacing:.04em; }
+
+    /* ── Card ── */
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:20px; }
+    .card-header { padding:14px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+    .card-title { font-size:13px; font-weight:700; display:flex; align-items:center; gap:8px; }
+    .card-body { padding:20px; }
+    h2.section-title { font-size:18px; font-weight:700; margin-bottom:6px; }
+    .section-sub { font-size:13px; color:var(--text2); margin-bottom:24px; }
+
+    /* ── Form row ── */
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .form-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+    .field { display:flex; flex-direction:column; gap:5px; }
+    .field-full { grid-column:1/-1; }
+    label.lbl { font-size:12px; color:var(--text2); font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
+    input[type=text], input[type=url], input[type=number], select, textarea {
+      background:var(--input-bg);
+      border:1px solid var(--border);
+      border-radius:7px;
+      padding:8px 11px;
+      color:var(--text);
+      font-size:13px;
+      font-family:inherit;
+      width:100%;
+      transition:border-color .15s;
+    }
+    input:focus, select:focus, textarea:focus { outline:none; border-color:var(--primary); }
+    textarea { resize:vertical; min-height:80px; font-family:monospace; font-size:12px; }
+    .toggle-field { display:flex; align-items:center; gap:10px; padding:8px 0; }
+    .toggle-field label { font-size:13px; color:var(--text); flex:1; }
+    .toggle-field .hint { font-size:11px; color:var(--text2); margin-top:2px; }
+
+    /* ── Toggle switch ── */
+    .xck-sw { position:relative; display:inline-block; width:40px; height:22px; flex-shrink:0; }
+    .xck-sw input { opacity:0; width:0; height:0; }
+    .xck-sw-track { position:absolute; inset:0; background:var(--border2); border-radius:11px; cursor:pointer; transition:.2s; }
+    .xck-sw input:checked + .xck-sw-track { background:var(--primary); }
+    .xck-sw-track::after { content:''; position:absolute; left:3px; top:3px; width:16px; height:16px; background:#fff; border-radius:50%; transition:.2s; }
+    .xck-sw input:checked + .xck-sw-track::after { left:21px; }
+
+    /* ── Badge ── */
+    .badge { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:20px; font-size:11px; font-weight:600; }
+    .badge-on  { background:rgba(34,197,94,.15); color:var(--green); border:1px solid rgba(34,197,94,.25); }
+    .badge-off { background:rgba(239,68,68,.12); color:var(--red); border:1px solid rgba(239,68,68,.2); }
+    .badge-warn{ background:rgba(245,158,11,.12); color:var(--yellow); border:1px solid rgba(245,158,11,.2); }
+    .badge-blue{ background:rgba(59,130,246,.12); color:var(--blue); border:1px solid rgba(59,130,246,.2); }
+    .dot { width:5px; height:5px; border-radius:50%; background:currentColor; }
+
+    /* ── Alert ── */
+    .alert { padding:12px 16px; border-radius:8px; font-size:13px; display:flex; align-items:flex-start; gap:10px; margin-bottom:16px; }
+    .alert-ok   { background:rgba(34,197,94,.08); border:1px solid rgba(34,197,94,.2); color:var(--green); }
+    .alert-warn { background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.25); color:var(--yellow); }
+    .alert-err  { background:rgba(239,68,68,.08); border:1px solid rgba(239,68,68,.2); color:var(--red); }
+
+    /* ── Divider ── */
+    .divider { height:1px; background:var(--border); margin:18px 0; }
+
+    /* ── Row table ── */
+    .row-table { width:100%; border-collapse:collapse; }
+    .row-table th { text-align:left; font-size:11px; color:var(--text2); text-transform:uppercase; letter-spacing:.05em; padding:8px 12px; border-bottom:1px solid var(--border); font-weight:600; }
+    .row-table td { padding:10px 12px; border-bottom:1px solid var(--border); font-size:13px; vertical-align:middle; }
+    .row-table tr:last-child td { border-bottom:none; }
+    .row-table tr:hover td { background:var(--row-hover); }
+
+    /* ── Intégrations ── */
+    .intg-group-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--text2); padding:14px 0 6px; }
+    .intg-row { display:flex; align-items:center; gap:12px; padding:10px 14px; background:var(--surface2); border:1px solid var(--border); border-radius:8px; margin-bottom:6px; }
+    .intg-name { flex:1; font-size:13px; font-weight:500; }
+    .intg-config-fields { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+    .intg-field { display:flex; flex-direction:column; gap:3px; flex:1; min-width:160px; }
+    .intg-field label { font-size:11px; color:var(--text2); }
+    .intg-detail { display:none; padding:12px 14px; background:var(--bg); border:1px solid var(--border); border-top:none; border-radius:0 0 8px 8px; margin-top:-7px; margin-bottom:6px; }
+    .intg-detail.open { display:block; }
+
+    /* ── CacheKit ── */
+    .cachekit-key { font-family:monospace; background:var(--code-bg); padding:2px 8px; border-radius:4px; color:var(--primary); font-size:12px; }
+
+    /* ── Swatch ── */
+    .swatch { display:inline-flex; align-items:center; gap:6px; }
+    .swatch-dot { width:14px; height:14px; border-radius:4px; border:1px solid var(--border); flex-shrink:0; }
+
+    /* ── Toast ── */
+    #toast {
+      position:fixed; bottom:24px; right:24px; z-index:9999;
+      background:var(--surface); border:1px solid var(--border);
+      padding:12px 18px; border-radius:10px; font-size:13px;
+      box-shadow:0 8px 30px rgba(0,0,0,.3);
+      opacity:0; transform:translateY(8px);
+      transition:opacity .2s, transform .2s;
+      pointer-events:none;
+    }
+    #toast.show { opacity:1; transform:none; }
+    #toast.ok { border-left:3px solid var(--green); }
+    #toast.err { border-left:3px solid var(--red); }
+
+    /* ── Modal ── */
+    .modal-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:300; align-items:center; justify-content:center; }
+    .modal-backdrop.open { display:flex; }
+    .modal { background:var(--surface); border:1px solid var(--border); border-radius:12px; width:100%; max-width:540px; max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,.5); }
+    .modal-header { padding:18px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+    .modal-title { font-size:15px; font-weight:700; }
+    .modal-body { padding:20px; display:flex; flex-direction:column; gap:14px; }
+    .modal-footer { padding:14px 20px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:10px; }
+    .modal-close { background:none; border:none; color:var(--text2); font-size:18px; cursor:pointer; line-height:1; }
+
+    /* ── Responsive ── */
+    @media (max-width:700px) {
+      .sidebar { display:none; }
+      .main { padding:20px 16px; }
+      .form-grid, .form-grid-3 { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<div class="topbar">
+  <div class="topbar-logo">
+    <div class="topbar-logo-dot"></div>
+    Xeolux CookieKit
+  </div>
+  <div class="topbar-right">
+    <button class="theme-btn" id="themeBtn" title="Changer le thème">☀</button>
+    <span class="topbar-user">{{ request.user.username }}</span>
+    {% if request.user.is_staff %}
+      <a href="/admin/xeolux_cookiekit/" class="btn btn-secondary btn-sm">⚙ Admin</a>
+    {% endif %}
+    <a href="/admin/logout/" class="btn btn-secondary btn-sm">Déconnexion</a>
+  </div>
+</div>
+
+<!-- ── Layout ── -->
+<div class="layout">
+
+  <!-- ── Sidebar ── -->
+  <nav class="sidebar">
+    <div class="sidebar-section">Tableau de bord</div>
+    <div class="sidebar-item active" data-section="overview"><span class="icon">📊</span> Vue d'ensemble</div>
+    <div class="sidebar-section">Configuration</div>
+    <div class="sidebar-item" data-section="general"><span class="icon">⚙</span> Général</div>
+    <div class="sidebar-item" data-section="appearance"><span class="icon">🎨</span> Apparence</div>
+    <div class="sidebar-item" data-section="texts"><span class="icon">✏</span> Textes</div>
+    <div class="sidebar-section">Intégrations</div>
+    <div class="sidebar-item" data-section="integrations"><span class="icon">🔌</span> Intégrations <span style="margin-left:auto;" id="sb-intg-count"></span></div>
+    <div class="sidebar-item" data-section="scripts"><span class="icon">📝</span> Scripts custom</div>
+    <div class="sidebar-item" data-section="categories"><span class="icon">📂</span> Catégories</div>
+    <div class="sidebar-section">Système</div>
+    <div class="sidebar-item" data-section="cachekit"><span class="icon">📦</span> CacheKit</div>
+  </nav>
+
+  <!-- ── Main ── -->
+  <main class="main">
+
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <!-- VUE D'ENSEMBLE -->
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <div class="section active" id="section-overview">
+      <h2 class="section-title">Vue d'ensemble</h2>
+      <p class="section-sub">Tableau de bord du consentement cookies.</p>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-value">{{ integrations_active_count }}</div>
+          <div class="stat-label">Intégrations actives</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">{{ integrations_total }}</div>
+          <div class="stat-label">Intégrations totales</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">{{ categories.count }}</div>
+          <div class="stat-label">Catégories</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">{{ custom_scripts.count }}</div>
+          <div class="stat-label">Scripts custom</div>
+        </div>
+        {% if config %}
+        <div class="stat">
+          <div class="stat-value" style="font-size:16px;margin-top:4px;">{{ config.consent_version }}</div>
+          <div class="stat-label">Version consentement</div>
+        </div>
+        {% endif %}
+      </div>
+
+      {% if not config %}
+      <div class="alert alert-warn">
+        <span>⚠</span>
+        <span>Aucune configuration active. Créez une configuration dans <a href="/admin/xeolux_cookiekit/">l'admin</a>.</span>
+      </div>
+      {% endif %}
+
+      <!-- Résumé config -->
+      {% if config %}
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">⚙ Configuration active</span>
+          {% if config.enabled %}<span class="badge badge-on"><span class="dot"></span>Activée</span>{% else %}<span class="badge badge-off">Désactivée</span>{% endif %}
+        </div>
+        <div class="card-body">
+          <table class="row-table">
+            <tr><td style="color:var(--text2);width:180px;">Cookie</td><td><code>{{ config.cookie_name }}</code></td></tr>
+            <tr><td style="color:var(--text2);">Durée</td><td>{{ config.cookie_max_age_days }} jours</td></tr>
+            <tr><td style="color:var(--text2);">Signature HMAC</td><td>{% if config.cookie_signing_enabled %}<span class="badge badge-on">Activée</span>{% else %}<span class="badge badge-warn">Désactivée</span>{% endif %}</td></tr>
+            <tr><td style="color:var(--text2);">Cookie Secure</td><td>{% if config.cookie_secure %}<span class="badge badge-on">Oui</span>{% else %}<span class="badge badge-warn">Non</span>{% endif %}</td></tr>
+            <tr><td style="color:var(--text2);">Position bandeau</td><td>{{ config.banner_position }} — {{ config.banner_layout }}</td></tr>
+            <tr><td style="color:var(--text2);">Thème bandeau</td><td>{{ config.banner_color_scheme }}</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- CacheKit résumé -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">📦 CacheKit</span>
+          {% if cachekit_status.installed %}<span class="badge badge-on">Installé</span>{% else %}<span class="badge badge-warn">Non installé</span>{% endif %}
+        </div>
+        <div class="card-body">
+          {% if cachekit_status.error %}
+            <div class="alert alert-err"><span>✗</span><span>{{ cachekit_status.error }}</span></div>
+          {% elif cachekit_status.version %}
+            <div class="alert alert-ok"><span>✓</span><span>Version résolue : <strong>{{ cachekit_status.version }}</strong> — cette valeur est utilisée comme <code>consent_version</code> à la place du champ admin.</span></div>
+          {% elif cachekit_status.installed %}
+            <div class="alert alert-warn"><span>⚠</span><span>CacheKit installé mais synchronisation désactivée. Le champ <code>consent_version</code> admin est utilisé.</span></div>
+          {% endif %}
+          <table class="row-table">
+            <tr><td style="color:var(--text2);width:180px;">Synchronisation</td><td>{% if config and config.cachekit_enabled %}<span class="badge badge-on">Active</span>{% else %}<span class="badge badge-off">Désactivée</span>{% endif %}</td></tr>
+            <tr><td style="color:var(--text2);">Clé utilisée</td><td><span class="cachekit-key">{{ cachekit_status.key }}</span></td></tr>
+          </table>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <!-- GÉNÉRAL -->
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <div class="section" id="section-general">
+      <h2 class="section-title">Configuration générale</h2>
+      <p class="section-sub">Paramètres du cookie de consentement.</p>
+
+      {% if not config %}<div class="alert alert-warn"><span>⚠</span><span>Aucune configuration active.</span></div>
+      {% else %}
+      {% if not can_edit %}<div class="alert alert-warn"><span>⚠</span><span>Accès lecture seule — permission <code>change_cookiekitconfig</code> requise.</span></div>{% endif %}
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">⚙ Paramètres cookie</span></div>
+        <div class="card-body">
+          <div class="form-grid">
+            <div class="field">
+              <label class="lbl">Version de consentement</label>
+              <input type="text" id="f-consent_version" value="{{ config.consent_version }}" {% if not can_edit %}disabled{% endif %}>
+              {% if cachekit_status.version %}
+              <span style="font-size:11px;color:var(--yellow);margin-top:3px;">⚡ CacheKit actif — cette valeur est remplacée par <strong>{{ cachekit_status.version }}</strong></span>
+              {% endif %}
+            </div>
+            <div class="field">
+              <label class="lbl">Durée du cookie (jours)</label>
+              <input type="number" id="f-cookie_max_age_days" value="{{ config.cookie_max_age_days }}" min="1" max="395" {% if not can_edit %}disabled{% endif %}>
+            </div>
+            <div class="field">
+              <label class="lbl">Nom du cookie</label>
+              <input type="text" value="{{ config.cookie_name }}" disabled title="Non modifiable depuis le dashboard">
+            </div>
+            <div class="field">
+              <label class="lbl">SameSite</label>
+              <select id="f-cookie_samesite" {% if not can_edit %}disabled{% endif %}>
+                <option value="Lax" {% if config.cookie_samesite == "Lax" %}selected{% endif %}>Lax</option>
+                <option value="Strict" {% if config.cookie_samesite == "Strict" %}selected{% endif %}>Strict</option>
+                <option value="None" {% if config.cookie_samesite == "None" %}selected{% endif %}>None</option>
+              </select>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="toggle-field">
+            <label class="xck-sw"><input type="checkbox" id="f-enabled" {% if config.enabled %}checked{% endif %} {% if not can_edit %}disabled{% endif %}><span class="xck-sw-track"></span></label>
+            <div><label>Bandeau activé</label><div class="hint">Désactiver masque le bandeau pour tous les visiteurs.</div></div>
+          </div>
+          <div class="toggle-field">
+            <label class="xck-sw"><input type="checkbox" id="f-cookie_secure" {% if config.cookie_secure %}checked{% endif %} {% if not can_edit %}disabled{% endif %}><span class="xck-sw-track"></span></label>
+            <div><label>Cookie Secure (HTTPS uniquement)</label></div>
+          </div>
+          <div class="toggle-field">
+            <label class="xck-sw"><input type="checkbox" id="f-cookie_signing_enabled" {% if config.cookie_signing_enabled %}checked{% endif %} {% if not can_edit %}disabled{% endif %}><span class="xck-sw-track"></span></label>
+            <div><label>Signature HMAC-SHA256</label><div class="hint">Recommandé — détecte les falsifications du cookie.</div></div>
+          </div>
+          {% if can_edit %}
+          <div class="divider"></div>
+          <button class="btn btn-primary" onclick="saveConfig()">Enregistrer</button>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <!-- APPARENCE -->
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <div class="section" id="section-appearance">
+      <h2 class="section-title">Apparence du bandeau</h2>
+      <p class="section-sub">Couleurs, thème, layout et animations.</p>
+
+      {% if config %}
+      <div class="card">
+        <div class="card-header"><span class="card-title">🎨 Thème &amp; Layout</span></div>
+        <div class="card-body">
+          <div class="form-grid-3">
+            <div class="field">
+              <label class="lbl">Thème bandeau</label>
+              <select id="f-banner_color_scheme" {% if not can_edit %}disabled{% endif %}>
+                <option value="dark" {% if config.banner_color_scheme == "dark" %}selected{% endif %}>🌙 Sombre</option>
+                <option value="light" {% if config.banner_color_scheme == "light" %}selected{% endif %}>☀ Clair</option>
+                <option value="auto" {% if config.banner_color_scheme == "auto" %}selected{% endif %}>⚡ Auto (système)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="lbl">Thème dashboard</label>
+              <select id="f-dashboard_theme" {% if not can_edit %}disabled{% endif %}>
+                <option value="dark" {% if config.dashboard_theme == "dark" %}selected{% endif %}>🌙 Sombre</option>
+                <option value="light" {% if config.dashboard_theme == "light" %}selected{% endif %}>☀ Clair</option>
+                <option value="auto" {% if config.dashboard_theme == "auto" %}selected{% endif %}>⚡ Auto</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="lbl">Animation</label>
+              <select id="f-banner_animation" {% if not can_edit %}disabled{% endif %}>
+                <option value="slide" {% if config.banner_animation == "slide" %}selected{% endif %}>↑ Glissement</option>
+                <option value="fade" {% if config.banner_animation == "fade" %}selected{% endif %}>✦ Fondu</option>
+                <option value="none" {% if config.banner_animation == "none" %}selected{% endif %}>— Aucune</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="lbl">Position</label>
+              <select id="f-banner_position" {% if not can_edit %}disabled{% endif %}>
+                <option value="bottom" {% if config.banner_position == "bottom" %}selected{% endif %}>Bas de page</option>
+                <option value="top" {% if config.banner_position == "top" %}selected{% endif %}>Haut de page</option>
+                <option value="bottom-left" {% if config.banner_position == "bottom-left" %}selected{% endif %}>Bas gauche</option>
+                <option value="bottom-right" {% if config.banner_position == "bottom-right" %}selected{% endif %}>Bas droite</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="lbl">Layout</label>
+              <select id="f-banner_layout" {% if not can_edit %}disabled{% endif %}>
+                <option value="banner" {% if config.banner_layout == "banner" %}selected{% endif %}>Bandeau</option>
+                <option value="modal" {% if config.banner_layout == "modal" %}selected{% endif %}>Modal centré</option>
+                <option value="floating" {% if config.banner_layout == "floating" %}selected{% endif %}>Flottant</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="lbl">Border radius</label>
+              <input type="text" id="f-border_radius" value="{{ config.border_radius }}" {% if not can_edit %}disabled{% endif %}>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="toggle-field">
+            <label class="xck-sw"><input type="checkbox" id="f-shadow" {% if config.shadow %}checked{% endif %} {% if not can_edit %}disabled{% endif %}><span class="xck-sw-track"></span></label>
+            <div><label>Ombre portée</label></div>
+          </div>
+          <div class="toggle-field">
+            <label class="xck-sw"><input type="checkbox" id="f-banner_backdrop_blur" {% if config.banner_backdrop_blur %}checked{% endif %} {% if not can_edit %}disabled{% endif %}><span class="xck-sw-track"></span></label>
+            <div><label>Backdrop blur (glassmorphism)</label><div class="hint">Flou derrière le bandeau.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">🎨 Palette de couleurs</span></div>
+        <div class="card-body">
+          <div class="form-grid-3">
+            <div class="field">
+              <label class="lbl">Fond</label>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input type="color" id="f-background_color-picker" value="{{ config.background_color }}" style="width:36px;height:34px;padding:2px;border-radius:6px;border:1px solid var(--border);background:none;cursor:pointer;" {% if not can_edit %}disabled{% endif %}>
+                <input type="text" id="f-background_color" value="{{ config.background_color }}" {% if not can_edit %}disabled{% endif %} style="flex:1;">
+              </div>
+            </div>
+            <div class="field">
+              <label class="lbl">Texte</label>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input type="color" id="f-text_color-picker" value="{{ config.text_color }}" style="width:36px;height:34px;padding:2px;border-radius:6px;border:1px solid var(--border);background:none;cursor:pointer;" {% if not can_edit %}disabled{% endif %}>
+                <input type="text" id="f-text_color" value="{{ config.text_color }}" {% if not can_edit %}disabled{% endif %} style="flex:1;">
+              </div>
+            </div>
+            <div class="field">
+              <label class="lbl">Primaire (boutons)</label>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input type="color" id="f-primary_color-picker" value="{{ config.primary_color }}" style="width:36px;height:34px;padding:2px;border-radius:6px;border:1px solid var(--border);background:none;cursor:pointer;" {% if not can_edit %}disabled{% endif %}>
+                <input type="text" id="f-primary_color" value="{{ config.primary_color }}" {% if not can_edit %}disabled{% endif %} style="flex:1;">
+              </div>
+            </div>
+            <div class="field">
+              <label class="lbl">Texte bouton primaire</label>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input type="color" id="f-primary_text_color-picker" value="{{ config.primary_text_color }}" style="width:36px;height:34px;padding:2px;border-radius:6px;border:1px solid var(--border);background:none;cursor:pointer;" {% if not can_edit %}disabled{% endif %}>
+                <input type="text" id="f-primary_text_color" value="{{ config.primary_text_color }}" {% if not can_edit %}disabled{% endif %} style="flex:1;">
+              </div>
+            </div>
+            <div class="field">
+              <label class="lbl">Secondaire</label>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input type="color" id="f-secondary_color-picker" value="{{ config.secondary_color }}" style="width:36px;height:34px;padding:2px;border-radius:6px;border:1px solid var(--border);background:none;cursor:pointer;" {% if not can_edit %}disabled{% endif %}>
+                <input type="text" id="f-secondary_color" value="{{ config.secondary_color }}" {% if not can_edit %}disabled{% endif %} style="flex:1;">
+              </div>
+            </div>
+          </div>
+          {% if can_edit %}
+          <div class="divider"></div>
+          <button class="btn btn-primary" onclick="saveConfig()">Enregistrer</button>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <!-- TEXTES -->
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <div class="section" id="section-texts">
+      <h2 class="section-title">Textes du bandeau</h2>
+      <p class="section-sub">Labels, titres et messages affichés aux visiteurs.</p>
+
+      {% if config %}
+      <div class="card">
+        <div class="card-body">
+          <div class="form-grid">
+            <div class="field">
+              <label class="lbl">Titre</label>
+              <input type="text" id="f-title" value="{{ config.title }}" {% if not can_edit %}disabled{% endif %}>
+            </div>
+            <div class="field">
+              <label class="lbl">Titre modal préférences</label>
+              <input type="text" value="{{ config.preferences_title }}" disabled title="Modifiable via admin">
+            </div>
+            <div class="field field-full">
+              <label class="lbl">Message</label>
+              <textarea id="f-message" rows="3" {% if not can_edit %}disabled{% endif %}>{{ config.message }}</textarea>
+            </div>
+            <div class="field">
+              <label class="lbl">Bouton Tout accepter</label>
+              <input type="text" id="f-accept_all_label" value="{{ config.accept_all_label }}" {% if not can_edit %}disabled{% endif %}>
+            </div>
+            <div class="field">
+              <label class="lbl">Bouton Tout refuser</label>
+              <input type="text" id="f-reject_all_label" value="{{ config.reject_all_label }}" {% if not can_edit %}disabled{% endif %}>
+            </div>
+            <div class="field">
+              <label class="lbl">Bouton Personnaliser</label>
+              <input type="text" id="f-customize_label" value="{{ config.customize_label }}" {% if not can_edit %}disabled{% endif %}>
+            </div>
+            <div class="field field-full">
+              <label class="lbl">URL Politique de confidentialité</label>
+              <input type="url" id="f-privacy_policy_url" value="{{ config.privacy_policy_url }}" placeholder="https://exemple.fr/confidentialite" {% if not can_edit %}disabled{% endif %}>
+            </div>
+          </div>
+          {% if can_edit %}
+          <div class="divider"></div>
+          <button class="btn btn-primary" onclick="saveConfig()">Enregistrer</button>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <!-- INTÉGRATIONS -->
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <div class="section" id="section-integrations">
+      <h2 class="section-title">Intégrations tierces</h2>
+      <p class="section-sub">{{ integrations_total }} intégrations — {{ integrations_active_count }} actives. Chaque script est injecté uniquement après consentement.</p>
+
+      {% for cat_label, items in integrations_by_category.items %}
+      <div class="intg-group-label">{{ cat_label }}</div>
+      {% for intg in items %}
+      <div class="intg-row" id="intg-row-{{ intg.pk }}">
+        <label class="xck-sw">
+          <input type="checkbox" {% if intg.enabled %}checked{% endif %} {% if not can_edit %}disabled{% endif %}
+                 onchange="toggleIntg({{ intg.pk }}, this.checked)">
+          <span class="xck-sw-track"></span>
+        </label>
+        <span class="intg-name">{{ intg.label }}</span>
+        <span class="badge {% if intg.enabled %}badge-on{% else %}badge-off{% endif %}" id="intg-badge-{{ intg.pk }}">
+          <span class="dot"></span>{% if intg.enabled %}Actif{% else %}Inactif{% endif %}
+        </span>
+        {% if can_edit %}
+        <button class="btn btn-secondary btn-sm btn-icon" onclick="toggleIntgDetail({{ intg.pk }})" title="Configurer">✎</button>
+        {% endif %}
+      </div>
+      {% if can_edit %}
+      <div class="intg-detail" id="intg-detail-{{ intg.pk }}">
+        <div class="intg-config-fields" id="intg-fields-{{ intg.pk }}">
+          {% for field_def in intg.get_config_fields %}
+          <div class="intg-field">
+            <label>{{ field_def.label }}{% if field_def.help %} <span style="color:var(--text2);">({{ field_def.help }})</span>{% endif %}</label>
+            <input type="text" class="intg-input" data-key="{{ field_def.key }}" value="{{ intg.config|get_item:field_def.key }}" placeholder="{{ field_def.placeholder|default:field_def.label }}">
+          </div>
+          {% empty %}
+          <p style="font-size:12px;color:var(--text2);">Aucun champ de configuration pour cette intégration.</p>
+          {% endfor %}
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;">
+          <button class="btn btn-primary btn-sm" onclick="saveIntgConfig({{ intg.pk }})">Enregistrer</button>
+          <button class="btn btn-secondary btn-sm" onclick="toggleIntgDetail({{ intg.pk }})">Annuler</button>
+        </div>
+      </div>
+      {% endif %}
+      {% endfor %}
+      {% endfor %}
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <!-- SCRIPTS CUSTOM -->
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <div class="section" id="section-scripts">
+      <h2 class="section-title">Scripts personnalisés</h2>
+      <p class="section-sub">Scripts HTML/JS injectés après consentement à une catégorie.</p>
+
+      {% if can_edit %}
+      <button class="btn btn-primary" style="margin-bottom:20px;" onclick="openScriptModal(null)">+ Nouveau script</button>
+      {% endif %}
+
+      {% if not custom_scripts %}
+      <div class="card"><div class="card-body" style="color:var(--text2);text-align:center;padding:32px;">Aucun script personnalisé.</div></div>
+      {% else %}
+      <div class="card">
+        <table class="row-table" style="width:100%;">
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Catégorie</th>
+              <th>Position</th>
+              <th>Statut</th>
+              {% if can_edit %}<th></th>{% endif %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in custom_scripts %}
+            <tr id="script-row-{{ s.pk }}">
+              <td style="font-weight:500;">{{ s.name }}</td>
+              <td><code>{{ s.category }}</code></td>
+              <td><span class="badge badge-blue">&lt;{{ s.position }}&gt;</span></td>
+              <td>
+                {% if can_edit %}
+                <label class="xck-sw">
+                  <input type="checkbox" {% if s.enabled %}checked{% endif %} onchange="toggleScript({{ s.pk }}, this.checked)">
+                  <span class="xck-sw-track"></span>
+                </label>
+                {% else %}
+                  {% if s.enabled %}<span class="badge badge-on"><span class="dot"></span>Actif</span>{% else %}<span class="badge badge-off">Inactif</span>{% endif %}
+                {% endif %}
+              </td>
+              {% if can_edit %}
+              <td style="text-align:right;white-space:nowrap;">
+                <button class="btn btn-secondary btn-sm btn-icon" onclick="openScriptModal({{ s.pk }}, '{{ s.name|escapejs }}', '{{ s.category|escapejs }}', '{{ s.position|escapejs }}', {{ s.order }}, {{ s.enabled|yesno:'true,false' }})" title="Modifier">✎</button>
+                <button class="btn btn-danger btn-sm btn-icon" onclick="deleteScript({{ s.pk }})" title="Supprimer">✕</button>
+              </td>
+              {% endif %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <!-- CATÉGORIES -->
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <div class="section" id="section-categories">
+      <h2 class="section-title">Catégories de cookies</h2>
+      <p class="section-sub">Activez ou désactivez les catégories proposées aux visiteurs.</p>
+
+      <div class="card">
+        <table class="row-table">
+          <thead>
+            <tr>
+              <th>Catégorie</th>
+              <th>Clé</th>
+              <th>Requis</th>
+              <th>Actif</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for cat in categories %}
+            <tr>
+              <td>
+                <div style="font-weight:600;">{{ cat.label }}</div>
+                {% if cat.description %}<div style="font-size:12px;color:var(--text2);">{{ cat.description }}</div>{% endif %}
+              </td>
+              <td><code>{{ cat.key }}</code></td>
+              <td>{% if cat.required %}<span class="badge badge-on">Oui</span>{% else %}<span style="color:var(--text2);">—</span>{% endif %}</td>
+              <td>
+                {% if cat.required %}
+                  <span class="badge badge-on"><span class="dot"></span>Toujours</span>
+                {% elif can_edit %}
+                  <label class="xck-sw">
+                    <input type="checkbox" {% if cat.enabled %}checked{% endif %} onchange="toggleCategory({{ cat.pk }}, this.checked)">
+                    <span class="xck-sw-track"></span>
+                  </label>
+                {% else %}
+                  {% if cat.enabled %}<span class="badge badge-on"><span class="dot"></span>Oui</span>{% else %}<span class="badge badge-off">Non</span>{% endif %}
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" style="text-align:center;color:var(--text2);padding:24px;">Aucune catégorie. Lancez <code>manage.py migrate</code>.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <!-- CACHEKIT -->
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <div class="section" id="section-cachekit">
+      <h2 class="section-title">CacheKit</h2>
+      <p class="section-sub">Synchronisation de la version de consentement avec xeolux-cachekit.</p>
+
+      {% if not cachekit_status.installed %}
+      <div class="alert alert-warn">
+        <span>⚠</span>
+        <div>xeolux-cachekit non installé.<br><code>pip install xeolux-cachekit</code> ou <code>pip install "xeolux-cookiekit[cachekit]"</code></div>
+      </div>
+      {% else %}
+        {% if cachekit_status.error %}
+          <div class="alert alert-err"><span>✗</span><span>{{ cachekit_status.error }}</span></div>
+        {% elif cachekit_status.version %}
+          <div class="alert alert-ok"><span>✓</span><span>Version résolue : <strong>{{ cachekit_status.version }}</strong></span></div>
+        {% endif %}
+      {% endif %}
+
+      {% if config %}
+      <div class="card">
+        <div class="card-body">
+          <table class="row-table">
+            <tr>
+              <td style="color:var(--text2);width:200px;">Synchronisation active</td>
+              <td>{% if config.cachekit_enabled %}<span class="badge badge-on">Oui</span>{% else %}<span class="badge badge-off">Non</span>{% endif %}</td>
+            </tr>
+            <tr>
+              <td style="color:var(--text2);">Sync version consentement</td>
+              <td>{% if config.cachekit_sync_cookie_version %}<span class="badge badge-on">Oui</span>{% else %}<span class="badge badge-off">Non</span>{% endif %}</td>
+            </tr>
+            <tr>
+              <td style="color:var(--text2);">Clé utilisée</td>
+              <td><span class="cachekit-key">{{ cachekit_status.key }}</span></td>
+            </tr>
+            <tr>
+              <td style="color:var(--text2);">Version résolue</td>
+              <td>{% if cachekit_status.version %}<strong>{{ cachekit_status.version }}</strong>{% else %}<span style="color:var(--text2);">—</span>{% endif %}</td>
+            </tr>
+          </table>
+          <div class="divider"></div>
+          <div class="alert alert-warn" style="margin-bottom:0;">
+            <span>ℹ</span>
+            <div>
+              <strong>Comment ça marche :</strong> quand CacheKit est installé et la synchronisation activée,
+              la valeur <code>consent_version</code> de l'admin est <strong>ignorée</strong> — c'est la version
+              retournée par <code>get_cache_version("{{ cachekit_status.key }}")</code> qui est utilisée.
+              Modifiez la clé <code>"{{ cachekit_status.key }}"</code> dans <code>XEOLUX_CACHEKIT</code> dans
+              <code>settings.py</code> pour changer la version de consentement.
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+  </main>
+</div><!-- /.layout -->
+
+<!-- ── Modal scripts custom ── -->
+<div class="modal-backdrop" id="scriptModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="scriptModalTitle">Nouveau script</span>
+      <button class="modal-close" onclick="closeScriptModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="sm-id">
+      <div class="field">
+        <label class="lbl">Nom du script *</label>
+        <input type="text" id="sm-name" placeholder="Ex : Mon tracking custom">
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label class="lbl">Catégorie de consentement</label>
+          <select id="sm-category">
+            {% for cat in categories %}
+            <option value="{{ cat.key }}">{{ cat.label }} ({{ cat.key }})</option>
+            {% endfor %}
+            <option value="analytics">analytics</option>
+            <option value="marketing">marketing</option>
+            <option value="preferences">preferences</option>
+            <option value="necessary">necessary</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="lbl">Position d'injection</label>
+          <select id="sm-position">
+            <option value="head">&lt;head&gt;</option>
+            <option value="body">&lt;body&gt;</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="lbl">Code HTML/Script</label>
+        <textarea id="sm-script" rows="8" placeholder="&lt;script&gt;&#10;  // votre script&#10;&lt;/script&gt;"></textarea>
+      </div>
+      <div class="toggle-field">
+        <label class="xck-sw"><input type="checkbox" id="sm-enabled" checked><span class="xck-sw-track"></span></label>
+        <div><label>Actif</label></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeScriptModal()">Annuler</button>
+      <button class="btn btn-primary" onclick="saveScript()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast ── -->
+<div id="toast"></div>
+
+<script>
+const CSRF = '{{ csrf_token }}';
+const CAN_EDIT = {{ can_edit|yesno:'true,false' }};
+
+// ── Navigation ──────────────────────────────────────────────────────────────
+document.querySelectorAll('.sidebar-item').forEach(function(item) {
+  item.addEventListener('click', function() {
+    const sec = this.dataset.section;
+    document.querySelectorAll('.sidebar-item').forEach(function(i) { i.classList.remove('active'); });
+    document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+    this.classList.add('active');
+    document.getElementById('section-' + sec).classList.add('active');
+  });
+});
+
+// ── Thème ────────────────────────────────────────────────────────────────────
+(function() {
+  var html = document.documentElement;
+  var btn  = document.getElementById('themeBtn');
+  var KEY  = 'xck_dash_theme';
+  var stored = localStorage.getItem(KEY);
+  if (stored) html.setAttribute('data-xck-theme', stored);
+  updateThemeIcon(html.getAttribute('data-xck-theme') || 'dark');
+  btn.addEventListener('click', function() {
+    var cur = html.getAttribute('data-xck-theme') || 'dark';
+    var next = cur === 'dark' ? 'light' : cur === 'light' ? 'auto' : 'dark';
+    html.setAttribute('data-xck-theme', next);
+    localStorage.setItem(KEY, next);
+    updateThemeIcon(next);
+  });
+  function updateThemeIcon(t) { btn.textContent = t === 'light' ? '🌙' : t === 'auto' ? '⚡' : '☀'; }
+})();
+
+// ── Color pickers sync ───────────────────────────────────────────────────────
+['background_color','text_color','primary_color','primary_text_color','secondary_color'].forEach(function(f) {
+  var picker = document.getElementById('f-' + f + '-picker');
+  var text   = document.getElementById('f-' + f);
+  if (!picker || !text) return;
+  picker.addEventListener('input', function() { text.value = this.value; });
+  text.addEventListener('input', function() { if (/^#[0-9a-fA-F]{6}$/.test(this.value)) picker.value = this.value; });
+});
+
+// ── Toast ────────────────────────────────────────────────────────────────────
+var _toastTimer;
+function toast(msg, type) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show ' + (type || 'ok');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(function() { el.className = ''; }, 3000);
+}
+
+// ── API call ─────────────────────────────────────────────────────────────────
+function api(data) {
+  return fetch(window.location.pathname, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+    body: JSON.stringify(data)
+  }).then(function(r) { return r.json(); });
+}
+
+// ── Save config ──────────────────────────────────────────────────────────────
+function saveConfig() {
+  var d = {
+    action: 'save_config',
+    consent_version:     v('f-consent_version'),
+    cookie_max_age_days: parseInt(v('f-cookie_max_age_days')) || 180,
+    cookie_samesite:     v('f-cookie_samesite'),
+    banner_position:     v('f-banner_position'),
+    banner_layout:       v('f-banner_layout'),
+    banner_color_scheme: v('f-banner_color_scheme'),
+    banner_animation:    v('f-banner_animation'),
+    dashboard_theme:     v('f-dashboard_theme'),
+    border_radius:       v('f-border_radius'),
+    background_color:    v('f-background_color'),
+    text_color:          v('f-text_color'),
+    primary_color:       v('f-primary_color'),
+    primary_text_color:  v('f-primary_text_color'),
+    secondary_color:     v('f-secondary_color'),
+    title:               v('f-title'),
+    message:             v('f-message'),
+    accept_all_label:    v('f-accept_all_label'),
+    reject_all_label:    v('f-reject_all_label'),
+    customize_label:     v('f-customize_label'),
+    privacy_policy_url:  v('f-privacy_policy_url'),
+    enabled:             cb('f-enabled'),
+    cookie_secure:       cb('f-cookie_secure'),
+    cookie_signing_enabled: cb('f-cookie_signing_enabled'),
+    shadow:              cb('f-shadow'),
+    banner_backdrop_blur: cb('f-banner_backdrop_blur'),
+  };
+  api(d).then(function(r) {
+    if (r.ok) {
+      toast('✓ Enregistré', 'ok');
+      // Appliquer le thème dashboard immédiatement
+      if (d.dashboard_theme) {
+        document.documentElement.setAttribute('data-xck-theme', d.dashboard_theme);
+        localStorage.setItem('xck_dash_theme', d.dashboard_theme);
+      }
+    } else { toast('✗ ' + r.error, 'err'); }
+  });
+}
+
+function v(id) { var el = document.getElementById(id); return el ? el.value : ''; }
+function cb(id) { var el = document.getElementById(id); return el ? el.checked : false; }
+
+// ── Toggle intégration ───────────────────────────────────────────────────────
+function toggleIntg(id, enabled) {
+  api({action:'toggle_integration', id:id, enabled:enabled}).then(function(r) {
+    if (r.ok) {
+      var b = document.getElementById('intg-badge-' + id);
+      if (b) {
+        b.className = 'badge ' + (enabled ? 'badge-on' : 'badge-off');
+        b.innerHTML = '<span class="dot"></span>' + (enabled ? 'Actif' : 'Inactif');
+      }
+      toast('✓ ' + (enabled ? 'Activé' : 'Désactivé'), 'ok');
+    } else { toast('✗ ' + r.error, 'err'); }
+  });
+}
+
+function toggleIntgDetail(id) {
+  var d = document.getElementById('intg-detail-' + id);
+  if (d) d.classList.toggle('open');
+}
+
+function saveIntgConfig(id) {
+  var container = document.getElementById('intg-fields-' + id);
+  var cfg = {};
+  container.querySelectorAll('.intg-input').forEach(function(inp) {
+    if (inp.value.trim()) cfg[inp.dataset.key] = inp.value.trim();
+  });
+  api({action:'save_intg_config', id:id, config:cfg}).then(function(r) {
+    if (r.ok) { toast('✓ Configuration enregistrée', 'ok'); toggleIntgDetail(id); }
+    else { toast('✗ ' + r.error, 'err'); }
+  });
+}
+
+// ── Toggle catégorie ─────────────────────────────────────────────────────────
+function toggleCategory(id, enabled) {
+  api({action:'toggle_category', id:id, enabled:enabled}).then(function(r) {
+    if (r.ok) toast('✓ ' + (enabled ? 'Activée' : 'Désactivée'), 'ok');
+    else toast('✗ ' + r.error, 'err');
+  });
+}
+
+// ── Toggle script ────────────────────────────────────────────────────────────
+function toggleScript(id, enabled) {
+  api({action:'toggle_script', id:id, enabled:enabled}).then(function(r) {
+    if (r.ok) toast('✓ ' + (enabled ? 'Activé' : 'Désactivé'), 'ok');
+    else toast('✗ ' + r.error, 'err');
+  });
+}
+
+// ── Modal scripts ─────────────────────────────────────────────────────────────
+function openScriptModal(id, name, cat, pos, order, enabled) {
+  document.getElementById('sm-id').value = id || '';
+  document.getElementById('sm-name').value = name || '';
+  document.getElementById('sm-category').value = cat || 'analytics';
+  document.getElementById('sm-position').value = pos || 'head';
+  document.getElementById('sm-enabled').checked = enabled !== false;
+  document.getElementById('scriptModalTitle').textContent = id ? 'Modifier le script' : 'Nouveau script';
+  // Le code script doit être rechargé via une autre méthode si nécessaire
+  if (!id) document.getElementById('sm-script').value = '';
+  document.getElementById('scriptModal').classList.add('open');
+}
+
+function closeScriptModal() { document.getElementById('scriptModal').classList.remove('open'); }
+
+function saveScript() {
+  var id = document.getElementById('sm-id').value;
+  api({
+    action: 'save_script',
+    id: id ? parseInt(id) : null,
+    name: document.getElementById('sm-name').value,
+    category: document.getElementById('sm-category').value,
+    position: document.getElementById('sm-position').value,
+    script: document.getElementById('sm-script').value,
+    enabled: document.getElementById('sm-enabled').checked,
+    order: 0,
+  }).then(function(r) {
+    if (r.ok) { toast('✓ Script enregistré', 'ok'); closeScriptModal(); setTimeout(function(){location.reload();},800); }
+    else { toast('✗ ' + r.error, 'err'); }
+  });
+}
+
+function deleteScript(id) {
+  if (!confirm('Supprimer ce script ?')) return;
+  api({action:'delete_script', id:id}).then(function(r) {
+    if (r.ok) {
+      var row = document.getElementById('script-row-' + id);
+      if (row) row.remove();
+      toast('✓ Supprimé', 'ok');
+    } else { toast('✗ ' + r.error, 'err'); }
+  });
+}
+
+// ── Init badge intégrations sidebar ──────────────────────────────────────────
+(function() {
+  var el = document.getElementById('sb-intg-count');
+  if (el) {
+    var total = {{ integrations_total }};
+    var active = {{ integrations_active_count }};
+    if (active > 0) {
+      var badge = document.createElement('span');
+      badge.className = 'badge badge-on';
+      badge.style.fontSize = '10px';
+      badge.textContent = active + '/' + total;
+      el.appendChild(badge);
+    }
+  }
+})();
+</script>
+
+</body>
+</html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">

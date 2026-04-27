@@ -17,7 +17,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.http import JsonResponse
 from django.shortcuts import render
 
-from xeolux_cookiekit.models import CookieCategory, CookieKitConfig, CookieKitIntegration
+from xeolux_cookiekit.models import CookieCategory, CookieKitConfig, CookieKitIntegration, CookieScript
 
 
 # ── Permission helpers (pas de bypass superuser) ──────────────────────────────
@@ -145,6 +145,49 @@ def cookiekit_dashboard(request):
                 return JsonResponse({"ok": False, "error": "Catégorie introuvable ou requise"}, status=404)
             return JsonResponse({"ok": True})
 
+        if action == "save_script":
+            # Créer ou modifier un CookieScript
+            script_id = body.get("id")
+            name = str(body.get("name", "")).strip()
+            category = str(body.get("category", "analytics")).strip()
+            position = str(body.get("position", "head")).strip()
+            script_code = str(body.get("script", "")).strip()
+            order = int(body.get("order", 0))
+            enabled = bool(body.get("enabled", True))
+            if not name:
+                return JsonResponse({"ok": False, "error": "Nom requis"}, status=400)
+            if position not in ("head", "body"):
+                return JsonResponse({"ok": False, "error": "Position invalide"}, status=400)
+            if script_id:
+                updated = CookieScript.objects.filter(pk=script_id).update(
+                    name=name, category=category, position=position,
+                    script=script_code, order=order, enabled=enabled,
+                )
+                if not updated:
+                    return JsonResponse({"ok": False, "error": "Script introuvable"}, status=404)
+                return JsonResponse({"ok": True, "id": script_id})
+            else:
+                obj = CookieScript.objects.create(
+                    name=name, category=category, position=position,
+                    script=script_code, order=order, enabled=enabled,
+                )
+                return JsonResponse({"ok": True, "id": obj.pk})
+
+        if action == "toggle_script":
+            script_id = body.get("id")
+            enabled = bool(body.get("enabled", False))
+            updated = CookieScript.objects.filter(pk=script_id).update(enabled=enabled)
+            if not updated:
+                return JsonResponse({"ok": False, "error": "Script introuvable"}, status=404)
+            return JsonResponse({"ok": True})
+
+        if action == "delete_script":
+            script_id = body.get("id")
+            deleted, _ = CookieScript.objects.filter(pk=script_id).delete()
+            if not deleted:
+                return JsonResponse({"ok": False, "error": "Script introuvable"}, status=404)
+            return JsonResponse({"ok": True})
+
         return JsonResponse({"ok": False, "error": "Action inconnue"}, status=400)
 
     # GET
@@ -155,6 +198,7 @@ def cookiekit_dashboard(request):
         cat = intg.get_category_display()
         integrations_by_category.setdefault(cat, []).append(intg)
     categories = CookieCategory.objects.all().order_by("order", "key")
+    custom_scripts = CookieScript.objects.all().order_by("position", "order", "name")
     cachekit_status = _get_cachekit_status(config)
 
     color_fields: list = []
@@ -176,6 +220,7 @@ def cookiekit_dashboard(request):
         "integrations_active_count": integrations.filter(enabled=True).count(),
         "integrations_total": integrations.count(),
         "categories": categories,
+        "custom_scripts": custom_scripts,
         "cachekit_status": cachekit_status,
         "page_title": "CookieKit — Configuration",
     }

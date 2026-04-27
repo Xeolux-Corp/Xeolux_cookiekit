@@ -88,9 +88,9 @@ def _get_cachekit_version(version_key: str) -> str | None:
     Retourne None si le package n'est pas installé ou si la clé est absente.
     """
     try:
-        from xeolux_cachekit import get_version  # type: ignore[import]
+        from xeolux_cachekit import get_cache_version  # type: ignore[import]
 
-        return get_version(version_key)
+        return get_cache_version(version_key)
     except (ImportError, Exception):
         return None
 
@@ -170,7 +170,7 @@ def get_cookiekit_config() -> dict[str, Any]:
     # 4. Synchronisation cachekit (version)
     cachekit_conf = config.get("cachekit", {})
     if cachekit_conf.get("enabled") and cachekit_conf.get("sync_cookie_version"):
-        version_key = cachekit_conf.get("version_key", "cookiekit")
+        version_key = cachekit_conf.get("version_key", "cookies")
         cachekit_version = _get_cachekit_version(version_key)
         if cachekit_version:
             config["consent_version"] = cachekit_version
