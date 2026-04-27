@@ -10,7 +10,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-66%20passed-brightgreen)](tests/)
 
-Bandeau cookies moderne, configurable depuis l'**admin Django**, sécurisé par **HMAC-SHA256**, conforme **RGPD/CNIL**, avec 11 intégrations tierces prêtes à l'emploi.
+Bandeau cookies moderne, configurable depuis l'**admin Django**, sécurisé par **HMAC-SHA256**, conforme **RGPD/CNIL**, avec **30 intégrations tierces** et un tableau de bord `/cookiekit/` intégré.
 
 </div>
 
@@ -22,7 +22,7 @@ Bandeau cookies moderne, configurable depuis l'**admin Django**, sécurisé par 
 - **Configurable depuis l'admin Django** — zéro code côté settings pour tout sauf `enabled`
 - **RGPD/CNIL** — analytics opt-in uniquement, durée max 395 jours (13 mois) respectée
 - **HMAC-SHA256** — cookie signé côté serveur, cookie HttpOnly anti-falsification
-- **11 intégrations** — GA4, GTM, Meta Pixel, LinkedIn, TikTok, X/Twitter, Matomo, Plausible, Clarity, Hotjar, Crisp
+- **30 intégrations** — GA4, GTM, Meta Pixel, LinkedIn, TikTok, X/Twitter, Matomo, Plausible, Clarity, Hotjar, Crisp, Mixpanel, Amplitude, PostHog, Intercom, Zendesk, et plus
 - **API JavaScript** — `hasConsent()`, `acceptAll()`, `rejectAll()`, événement `xeolux:cookies:updated`
 - **Versioning du consentement** — le bandeau réapparaît si la version change
 - **Compatibilité xeolux-cachekit** — synchronisation de version optionnelle
@@ -36,15 +36,17 @@ Bandeau cookies moderne, configurable depuis l'**admin Django**, sécurisé par 
 2. [Configuration rapide](#configuration-rapide)
 3. [Intégration dans les templates](#intégration-dans-les-templates)
 4. [Administration Django](#administration-django)
-5. [Intégrations tierces](#intégrations-tierces)
-6. [API JavaScript](#api-javascript)
-7. [Personnalisation CSS](#personnalisation-css)
-8. [Sécurité cookie HMAC](#sécurité-cookie-hmac)
-9. [Catégories de cookies](#catégories-de-cookies)
-10. [Versioning du consentement](#versioning-du-consentement)
-11. [Compatibilité xeolux-cachekit](#compatibilité-xeolux-cachekit)
-12. [Tests](#tests)
-13. [Avertissement RGPD/CNIL](#avertissement-rgpdcnil)
+5. [Tableau de bord /cookiekit/](#tableau-de-bord-cookiekit)
+6. [Intégrations tierces](#intégrations-tierces)
+7. [Scripts personnalisés](#scripts-personnalisés)
+8. [API JavaScript](#api-javascript)
+9. [Personnalisation CSS](#personnalisation-css)
+10. [Sécurité cookie HMAC](#sécurité-cookie-hmac)
+11. [Catégories de cookies](#catégories-de-cookies)
+12. [Versioning du consentement](#versioning-du-consentement)
+13. [Compatibilité xeolux-cachekit](#compatibilité-xeolux-cachekit)
+14. [Tests](#tests)
+15. [Avertissement RGPD/CNIL](#avertissement-rgpdcnil)
 
 ---
 
@@ -70,13 +72,27 @@ INSTALLED_APPS = [
 ]
 ```
 
-### 2. Appliquer les migrations
+### 2. Déclarer les URLs *(recommandé)*
+
+Ajoutez dans votre fichier `urls.py` principal pour activer la page `/cookiekit/` :
+
+```python
+# urls.py
+from django.urls import path, include
+
+urlpatterns = [
+    ...
+    path("", include("xeolux_cookiekit.urls")),
+]
+```
+
+### 3. Appliquer les migrations
 
 ```bash
 python manage.py migrate xeolux_cookiekit
 ```
 
-### 3. Activer le context processor *(recommandé)*
+### 4. Activer le context processor *(recommandé)*
 
 ```python
 # settings.py
@@ -153,12 +169,20 @@ Accédez à `/admin/xeolux_cookiekit/cookiekitconfig/` pour tout configurer visu
 | **🔒 Sécurité du cookie** | Signature HMAC-SHA256 (activée par défaut) |
 | **Apparence** | Couleurs, position, layout, ombres, police |
 | **Textes** | Labels des boutons, titres, lien politique de confidentialité |
-| **Intégrations Google** | GA4 (G-xxx), GTM (GTM-xxx) |
-| **Autres intégrations** | Meta, LinkedIn, TikTok, Twitter/X, Matomo, Plausible, Clarity, Hotjar, Crisp |
+| **Intégrations tierces** | Lien vers la gestion des 30 intégrations |
 | **Scripts personnalisés** | HTML/JS `<head>` et `<body>` après consentement |
 | **CacheKit / Versioning** | Synchronisation avec xeolux-cachekit |
 | **AnalyticsKit** | Bridge vers xeolux-analyticskit (futur) |
 | **Avancé** | CSS personnalisé, z-index |
+
+### Actions rapides sur les intégrations
+
+Depuis **Admin → Intégrations**, sélectionnez plusieurs intégrations et utilisez le menu **Actions** :
+
+- **✅ Activer les intégrations sélectionnées** — active en masse
+- **❌ Désactiver les intégrations sélectionnées** — désactive en masse
+
+> ⚠️ L'ajout et la suppression d'intégrations sont intentionnellement bloqués. Seule la configuration (activation/désactivation + JSON) est modifiable.
 
 ### Priorité de configuration
 
@@ -167,6 +191,37 @@ Accédez à `/admin/xeolux_cookiekit/cookiekitconfig/` pour tout configurer visu
 | `admin_fallback_settings` *(défaut)* | Admin en priorité, fallback sur settings.py |
 | `settings_only` | Ignore l'admin — tout depuis settings.py |
 | `admin_only` | Admin obligatoire — erreur si absent |
+
+---
+
+## Tableau de bord /cookiekit/
+
+xeolux-cookiekit expose une page de tableau de bord simple, accessible aux membres autorisés de votre équipe **sans accès complet à l'admin Django**.
+
+### Accès
+
+| Condition | Comportement |
+|---|---|
+| Non connecté | Redirigé vers `/admin/login/` |
+| Connecté sans permission | `403 Forbidden` |
+| Connecté avec permission | Tableau de bord complet |
+
+> **Important :** Le superuser n'a PAS accès automatiquement. La permission doit être attribuée explicitement (comportement voulu).
+
+### Attribuer la permission
+
+Dans **Admin → Utilisateurs**, cochez :
+> `xeolux_cookiekit | Configuration CookieKit | Can view configuration cookiekit`
+
+Ou par groupe — créez un groupe `CookieKit Editors` avec cette permission et assignez vos utilisateurs.
+
+### Contenu du tableau de bord
+
+- Statistiques : intégrations actives, total intégrations, catégories, version de consentement
+- Carte **Configuration** : état, durée, cookie secure, signature HMAC
+- Carte **CacheKit** : statut d'installation, version résolue, clé utilisée
+- Carte **Catégories** : liste avec état activé/requis
+- Grille **Intégrations** : toutes les intégrations groupées par catégorie avec badge actif/inactif
 
 ---
 
@@ -228,6 +283,29 @@ Les intégrations sont gérées via le modèle **`CookieKitIntegration`** (Admin
    {"measurement_id": "G-XXXXXXXXXX"}
    ```
 4. Sauvegardez — le script est actif immédiatement
+
+> **Mise à jour du package :** Les configurations existantes (`enabled`, `config`) ne sont jamais écrasées lors d'un `pip install --upgrade`. Les nouvelles intégrations ajoutées au catalogue sont créées avec `enabled=False` et `config={}` par défaut.
+
+---
+
+## Scripts personnalisés
+
+En plus des 30 intégrations tierces, vous pouvez ajouter vos propres scripts via **Admin → Scripts personnalisés**.
+
+Chaque script est :
+- associé à une **catégorie** (sélecteur dynamique basé sur vos `CookieCategory`)
+- injecté en `<head>` ou `<body>` uniquement si la catégorie est consentie
+- activable/désactivable individuellement
+
+```html
+<!-- Exemple : script injecté dans <head> si 'analytics' est consenti -->
+<script>
+  (function() {
+    // Votre script personnalisé
+    myTool.init("MY_KEY");
+  })();
+</script>
+```
 
 ---
 
@@ -366,6 +444,19 @@ pytest
 ---
 
 ## Changelog
+
+### v1.1.3 (2026)
+- **Sélecteur dynamique** pour le champ « Catégorie de consentement requise » dans l'admin des Scripts personnalisés — affiche les catégories existantes en base plutôt qu'un champ texte libre
+
+### v1.1.2 (2026)
+- **Nouveau tableau de bord `/cookiekit/`** — login requis + permission `view_cookiekitconfig` (pas de bypass superuser)
+- **Actions admin** sur les intégrations : activer/désactiver en masse
+- **Intégrations** : ajout et suppression interdits via l'admin (configuration uniquement)
+- **`slug` en lecture seule** dans le formulaire intégration
+- **Fix détection CacheKit** : `importlib.util.find_spec` distingue « non installé » de « installé mais `get_version()` manquant »
+
+### v1.1.1 (2026)
+- Correction doublon `@admin.register` dans `admin.py` (erreur `AlreadyRegistered`)
 
 ### v1.1.0 (2025)
 - **Nouveau modèle `CookieKitIntegration`** — remplace les 22 champs individuels d'intégration de `CookieKitConfig` par un modèle générique avec `JSONField`

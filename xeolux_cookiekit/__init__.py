@@ -2,5 +2,5 @@
 xeolux_cookiekit — Package Django pour la gestion du consentement cookies.
 """
 
-__version__ = "1.1.2"
+__version__ = "1.1.3"
 __author__ = "Xeolux"

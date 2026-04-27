@@ -4,6 +4,7 @@ admin.py — Interface d'administration Django pour xeolux_cookiekit.
 
 from __future__ import annotations
 
+from django import forms
 from django.contrib import admin
 from django.contrib import messages
 from django.utils.html import format_html
@@ -472,8 +473,43 @@ class CookieCategoryAdmin(admin.ModelAdmin):
     )
 
 
+class CookieScriptAdminForm(forms.ModelForm):
+    """
+    Formulaire admin pour CookieScript.
+    Le champ 'category' est un sélecteur dynamique alimenté par CookieCategory.
+    """
+
+    category = forms.ChoiceField(
+        label=_("Catégorie de consentement requise"),
+        choices=[],
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        cats = list(
+            CookieCategory.objects.values_list("key", "label").order_by("order", "key")
+        )
+        if cats:
+            self.fields["category"].choices = [
+                (key, f"{label}  ({key})") for key, label in cats
+            ]
+        else:
+            # Fallback si aucune catégorie en base (ex : migrate en cours)
+            self.fields["category"].choices = [
+                ("necessary", "Nécessaires  (necessary)"),
+                ("analytics", "Mesure d'audience  (analytics)"),
+                ("marketing", "Marketing  (marketing)"),
+                ("preferences", "Préférences  (preferences)"),
+            ]
+
+    class Meta:
+        model = CookieScript
+        fields = "__all__"
+
+
 @admin.register(CookieScript)
 class CookieScriptAdmin(admin.ModelAdmin):
+    form = CookieScriptAdminForm
     list_display = ("name", "category", "position", "enabled", "order")
     list_editable = ("enabled", "order")
     list_display_links = ("name",)
