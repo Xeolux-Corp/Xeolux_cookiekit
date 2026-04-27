@@ -225,29 +225,29 @@ class CookieKitConfigAdmin(admin.ModelAdmin):
                 ' — <span style="color:#888;">pip install xeolux-cachekit</span>'
             )
 
-        # Étape 2 : le module est installé, tenter d'appeler get_version
-        key = obj.cachekit_version_key or "cookiekit"
+        # Étape 2 : le module est installé, tenter d'appeler get_cache_version
+        key = obj.cachekit_version_key or "cookies"
         try:
-            from xeolux_cachekit import get_version  # type: ignore[import]
+            from xeolux_cachekit import get_cache_version  # type: ignore[import]
         except ImportError:
-            # Installé mais get_version n'existe pas à ce niveau
+            # Installé mais get_cache_version n'existe pas à ce niveau
             try:
                 import xeolux_cachekit as _ck  # type: ignore[import]
                 available = [x for x in dir(_ck) if not x.startswith("_")]
                 return format_html(
                     '<span style="color:#22c55e;">✓ xeolux-cachekit installé</span>'
-                    ' — <span style="color:#f59e0b;">get_version() introuvable.'
+                    ' — <span style="color:#f59e0b;">get_cache_version() introuvable.'
                     " Fonctions disponibles&nbsp;: {}</span>",
                     ", ".join(available[:8]) or "—",
                 )
             except Exception:
                 return format_html(
                     '<span style="color:#22c55e;">✓ xeolux-cachekit installé</span>'
-                    ' — <span style="color:#f59e0b;">API incompatible (get_version manquant)</span>'
+                    ' — <span style="color:#f59e0b;">API incompatible (get_cache_version manquant)</span>'
                 )
 
         try:
-            version = get_version(key)
+            version = get_cache_version(key)
             if version:
                 return format_html(
                     '<span style="color:#22c55e;">✓ Version résolue : <strong>{}</strong></span>'
@@ -264,7 +264,7 @@ class CookieKitConfigAdmin(admin.ModelAdmin):
         except Exception as exc:
             return format_html(
                 '<span style="color:#22c55e;">✓ xeolux-cachekit installé</span>'
-                ' — <span style="color:#f59e0b;">Erreur get_version({}) : {}</span>',
+                ' — <span style="color:#f59e0b;">Erreur get_cache_version({}) : {}</span>',
                 key,
                 str(exc)[:80],
             )

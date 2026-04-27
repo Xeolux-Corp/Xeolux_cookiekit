@@ -25,7 +25,7 @@ Bandeau cookies moderne, configurable depuis l'**admin Django**, sécurisé par 
 - **30 intégrations** — GA4, GTM, Meta Pixel, LinkedIn, TikTok, X/Twitter, Matomo, Plausible, Clarity, Hotjar, Crisp, Mixpanel, Amplitude, PostHog, Intercom, Zendesk, et plus
 - **API JavaScript** — `hasConsent()`, `acceptAll()`, `rejectAll()`, événement `xeolux:cookies:updated`
 - **Versioning du consentement** — le bandeau réapparaît si la version change
-- **Compatibilité xeolux-cachekit** — synchronisation de version optionnelle
+- **Compatibilité xeolux-cachekit** — cache-busting statiques + cookies versionnés, synchronisation de la version de consentement via `get_cache_version("cookies")`
 - **Bridge xeolux-analyticskit** — prêt pour intégration future (package séparé)
 
 ---
@@ -424,11 +424,42 @@ Si la `consent_version` change, le bandeau réapparaît pour tous les utilisateu
 
 ## Compatibilité xeolux-cachekit
 
+> 📦 [PyPI](https://pypi.org/project/xeolux-cachekit/) — [GitHub](https://github.com/Xeolux-Corp/Xeolux_cachekit)
+
+`xeolux-cachekit` est un système de **cache-busting** Django pour fichiers statiques (CSS, JS, assets) et **cookies versionnés**. Il maintient des versions nommées pour chaque type de ressource, expose des URL versionnées (`/static/css/main.css?v=1.0.3`) et génère des noms de cookies incluant la version active.
+
 ```bash
 pip install "xeolux-cookiekit[cachekit]"
 ```
 
-Si `xeolux_cachekit` est installé et que `cachekit.sync_cookie_version` est activé, la version de consentement est synchronisée avec la version cachekit. Fonctionne en mode dégradé sans cachekit.
+### Principe d'intégration
+
+Dans votre `settings.py`, configurez `XEOLUX_CACHEKIT` avec une clé `"cookies"` :
+
+```python
+XEOLUX_CACHEKIT = {
+    "global": "1.0.0",
+    "css": "1.0.3",
+    "js": "1.2.0",
+    "assets": "1.0.8",
+    "cookies": "1.0.0",   # ← version lue par xeolux-cookiekit
+    "strategy": "manual",  # ou "hash"
+}
+```
+
+Lorsque `cachekit_enabled` et `cachekit_sync_cookie_version` sont activés dans l'admin, `xeolux-cookiekit` appelle `get_cache_version(kind)` pour récupérer la version de consentement dynamiquement, plutôt que de la gérer manuellement. Si la valeur de `"cookies"` change, le bandeau de consentement réapparaît automatiquement.
+
+### Configuration dans l'admin
+
+| Champ | Description |
+|---|---|
+| `cachekit_enabled` | Active l'intégration xeolux-cachekit |
+| `cachekit_sync_cookie_version` | Synchronise la version de consentement via CacheKit |
+| `cachekit_version_key` | Kind passé à `get_cache_version()` (défaut : `cookies`) |
+
+### Fonctionnement sans xeolux-cachekit
+
+Si le package n'est pas installé, `xeolux-cookiekit` fonctionne en mode dégradé normal — la version de consentement est gérée manuellement via le champ `consent_version` de l'admin.
 
 ---
 
@@ -444,6 +475,14 @@ pytest
 ---
 
 ## Changelog
+
+### v1.1.5 (2026)
+- **Fix intégration xeolux-cachekit** : corrige l'appel API (`get_cache_version()` à la place de l'ancienne `get_version()`) dans `views.py` et `admin.py`
+- **README** : description complète de xeolux-cachekit (cache-busting CSS/JS/assets + cookies versionnés) et de son intégration via la clé `"cookies"`
+
+### v1.1.4 (2026)
+- **Dashboard `/cookiekit/` configurable** : UI Apple white mode, actions JSON (save_config, toggle_integration, save_intg_config, toggle_category)
+- **`get_config_fields()`** sur `CookieKitIntegration` : champs de configuration structurés pour le template
 
 ### v1.1.3 (2026)
 - **Sélecteur dynamique** pour le champ « Catégorie de consentement requise » dans l'admin des Scripts personnalisés — affiche les catégories existantes en base plutôt qu'un champ texte libre

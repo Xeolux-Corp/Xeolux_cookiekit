@@ -186,7 +186,7 @@ def _get_cachekit_status(config) -> dict:
     import importlib.util
     result = {
         "installed": False,
-        "key": config.cachekit_version_key if config else "cookiekit",
+        "key": config.cachekit_version_key if config else "cookies",
         "version": None,
         "error": None,
     }
@@ -196,10 +196,10 @@ def _get_cachekit_status(config) -> dict:
     result["installed"] = True
     if config and config.cachekit_enabled:
         try:
-            from xeolux_cachekit import get_version  # type: ignore[import]
-            result["version"] = get_version(result["key"])
+            from xeolux_cachekit import get_cache_version  # type: ignore[import]
+            result["version"] = get_cache_version(result["key"])
         except ImportError:
-            result["error"] = "no_get_version"
+            result["error"] = "no_get_cache_version"
         except Exception as exc:
             result["error"] = str(exc)[:100]
     return result
