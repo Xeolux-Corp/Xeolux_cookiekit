@@ -532,6 +532,20 @@ pytest
 
 ## Changelog
 
+### v1.2.2 (2026)
+- **Dark / Light / Auto mode sur le bandeau** — le champ `banner_color_scheme` (`dark`/`light`/`auto`) pilote les CSS custom properties du bandeau de consentement et de la modal de préférences
+  - `dark` : couleurs personnalisées via l'admin
+  - `light` : thème clair prédéfini (Apple-style `#f5f5f7` / `#1d1d1f`)
+  - `auto` : suit `prefers-color-scheme` système (dark par défaut, bascule clair si OS en mode clair)
+- Attribut `data-xck-scheme` ajouté sur `#xck-banner` et `#xck-modal`
+- Nouveaux champs `banner_animation` (slide/fade/none) et `banner_backdrop_blur` passés dans le dict `style`
+
+### v1.2.1 (2026)
+- **Fix critique CacheKit** : `cachekit_version_key` avait `default="cookiekit"` (invalide) — corrigé en `default="cookies"` + migration data `RunPython` pour mettre à jour les lignes DB existantes
+- **Dashboard dark/light/auto mode** : toggle ☀/🌙/⚡ dans la topbar, CSS variables par thème, mémorisé en `localStorage`
+- **Nouveaux champs apparence** : `banner_color_scheme`, `dashboard_theme`, `banner_animation`, `banner_backdrop_blur`
+- **Carte Apparence** dans le dashboard : thème, animation, backdrop blur, palette de couleurs avec swatches
+
 ### v1.2.0 (2026)
 - **71 intégrations** (+41 nouvelles) : Simple Analytics, Clicky, StatCounter, Woopra, Countly, Adobe Analytics, Piwik PRO, Smartlook, Mouseflow, Crazy Egg, Lucky Orange, LogRocket, Pendo, Kissmetrics, OpenReplay, Inspectlet, Google Ads Conversion, Microsoft UET, Criteo OneTag, AdRoll, The Trade Desk, Taboola, Outbrain, Amazon Ads, Klaviyo, Mailchimp Tracking, ActiveCampaign, Customer.io, LiveChat, Drift, tawk.to, Smartsupp, Olark, RudderStack, Snowplow, Optimizely, VWO, AB Tasty, GrowthBook, OneSignal, PushEngage
 - Couvre désormais : analytics web, product analytics, session replay/heatmaps, marketing pixels, CDPs, A/B testing, push notifications, email marketing tracking, chat
@@ -559,7 +573,7 @@ pytest
 
 ### v1.1.0 (2025)
 - **Nouveau modèle `CookieKitIntegration`** — remplace les 22 champs individuels d'intégration de `CookieKitConfig` par un modèle générique avec `JSONField`
-- **30 intégrations** (15 nouvelles) : Mixpanel, Amplitude, PostHog, Umami, Fathom, Segment, Heap, FullStory, Cloudflare Web Analytics, HubSpot, Pinterest Tag, Snapchat Pixel, Reddit Pixel, Quora Pixel, Brevo, Intercom, Zendesk Chat, Tidio, Freshchat
+- **71 intégrations** (+41 nouvelles) : Mixpanel, Amplitude, PostHog, Umami, Fathom, Segment, Heap, FullStory, Cloudflare Web Analytics, HubSpot, Pinterest Tag, Snapchat Pixel, Reddit Pixel, Quora Pixel, Brevo, Intercom, Zendesk Chat, Tidio, Freshchat, et plus
 - **Nouveau fichier `integrations.py`** — catalogue centralisé + générateurs JS individuels
 - Ajout d'un admin `CookieKitIntegrationAdmin` avec aide contextuelle JSON
 - Auto-création des 30 intégrations au `migrate` (toutes désactivées par défaut)

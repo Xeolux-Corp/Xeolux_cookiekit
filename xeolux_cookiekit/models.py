@@ -347,6 +347,9 @@ class CookieKitConfig(models.Model):
             "style": {
                 "position": self.banner_position,
                 "layout": self.banner_layout,
+                "color_scheme": self.banner_color_scheme,
+                "animation": self.banner_animation,
+                "backdrop_blur": self.banner_backdrop_blur,
                 "background_color": self.background_color,
                 "text_color": self.text_color,
                 "primary_color": self.primary_color,

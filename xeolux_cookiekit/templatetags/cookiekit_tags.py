@@ -59,20 +59,64 @@ def _build_css_vars(style: dict) -> str:
     if not re.match(r'^[\d.]+(%|px|em|rem|vw|vh)?$', str(radius)):
         radius = "14px"
 
-    lines = [
-        ":root {",
-        f"  --xck-bg: {_safe_color(style.get('background_color', '#111111'))};",
-        f"  --xck-text: {_safe_color(style.get('text_color', '#ffffff'))};",
-        f"  --xck-primary: {_safe_color(style.get('primary_color', '#ff6b00'))};",
-        f"  --xck-primary-text: {_safe_color(style.get('primary_text_color', '#ffffff'))};",
-        f"  --xck-secondary: {_safe_color(style.get('secondary_color', '#2b2b2b'))};",
-        f"  --xck-secondary-text: {_safe_color(style.get('secondary_text_color', '#ffffff'))};",
+    color_scheme = style.get("color_scheme", "dark")  # dark | light | auto
+
+    # Couleurs configurées par l'utilisateur (utilisées uniquement en mode dark/custom)
+    bg       = _safe_color(style.get("background_color", "#111111"))
+    text     = _safe_color(style.get("text_color", "#ffffff"))
+    primary  = _safe_color(style.get("primary_color", "#ff6b00"))
+    p_text   = _safe_color(style.get("primary_text_color", "#ffffff"))
+    sec      = _safe_color(style.get("secondary_color", "#2b2b2b"))
+    sec_text = _safe_color(style.get("secondary_text_color", "#ffffff"))
+
+    # Valeurs light prédéfinies (thème clair Apple-style)
+    _LIGHT = {
+        "bg": "#f5f5f7", "text": "#1d1d1f",
+        "primary": "#e05e00", "primary_text": "#ffffff",
+        "secondary": "#e0e0e5", "secondary_text": "#1d1d1f",
+    }
+
+    def _vars_block(scheme: str) -> list[str]:
+        """Retourne les lignes de variables pour un schéma donné."""
+        if scheme == "light":
+            return [
+                f"  --xck-bg: {_LIGHT['bg']};",
+                f"  --xck-text: {_LIGHT['text']};",
+                f"  --xck-primary: {_LIGHT['primary']};",
+                f"  --xck-primary-text: {_LIGHT['primary_text']};",
+                f"  --xck-secondary: {_LIGHT['secondary']};",
+                f"  --xck-secondary-text: {_LIGHT['secondary_text']};",
+            ]
+        # dark : utilise les couleurs configurées par l'admin
+        return [
+            f"  --xck-bg: {bg};",
+            f"  --xck-text: {text};",
+            f"  --xck-primary: {primary};",
+            f"  --xck-primary-text: {p_text};",
+            f"  --xck-secondary: {sec};",
+            f"  --xck-secondary-text: {sec_text};",
+        ]
+
+    common = [
         f"  --xck-radius: {radius};",
         f"  --xck-z-index: {z_index};",
         f"  --xck-shadow: {shadow_val};",
         f"  --xck-font: {_font_family(style.get('font_family', 'system'))};",
-        "}",
     ]
+
+    if color_scheme == "light":
+        lines = [":root {"] + _vars_block("light") + common + ["}"]
+    elif color_scheme == "auto":
+        # Mode auto : dark par défaut, light si prefers-color-scheme: light
+        lines = (
+            [":root {"] + _vars_block("dark") + common + ["}",
+            "@media (prefers-color-scheme: light) {",
+            "  :root {"] + _vars_block("light") + ["  }", "}"]
+        )
+    else:
+        # dark (défaut)
+        lines = [":root {"] + _vars_block("dark") + common + ["}"]
+
     return "\n".join(lines)
 
 
@@ -211,6 +255,7 @@ def cookiekit_banner() -> dict:
         "categories": merged_categories,
         "texts": config.get("texts", {}),
         "style": config.get("style", {}),
+        "color_scheme": config.get("style", {}).get("color_scheme", "dark"),
         "enabled": config.get("enabled", False),
     }
 
