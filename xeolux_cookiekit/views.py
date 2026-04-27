@@ -50,10 +50,12 @@ def _has_cookiekit_change_permission(user) -> bool:
 
 _BOOL_FIELDS = {
     "enabled", "cookie_secure", "cookie_signing_enabled", "shadow",
+    "banner_backdrop_blur",
 }
 _SCALAR_FIELDS = {
     "consent_version", "cookie_max_age_days", "cookie_samesite",
-    "banner_position", "banner_layout",
+    "banner_position", "banner_layout", "banner_color_scheme", "banner_animation",
+    "dashboard_theme",
     "background_color", "text_color", "primary_color", "primary_text_color",
     "secondary_color", "border_radius",
     "title", "message",

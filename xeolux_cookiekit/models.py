@@ -147,6 +147,43 @@ class CookieKitConfig(models.Model):
         default="",
         help_text=_("CSS additionnel injecté dans la page."),
     )
+    banner_color_scheme = models.CharField(
+        _("Thème du bandeau"),
+        max_length=10,
+        default="dark",
+        choices=[
+            ("dark", _("Sombre")),
+            ("light", _("Clair")),
+            ("auto", _("Automatique (système)")),
+        ],
+        help_text=_("Thème de couleur appliqué au bandeau de consentement."),
+    )
+    banner_animation = models.CharField(
+        _("Animation du bandeau"),
+        max_length=10,
+        default="slide",
+        choices=[
+            ("slide", _("Glissement")),
+            ("fade", _("Fondu")),
+            ("none", _("Aucune")),
+        ],
+    )
+    banner_backdrop_blur = models.BooleanField(
+        _("Effet verre dépoli (backdrop blur)"),
+        default=False,
+        help_text=_("Applique un flou derrière le bandeau. Effet glassmorphism."),
+    )
+    dashboard_theme = models.CharField(
+        _("Thème du dashboard"),
+        max_length=10,
+        default="dark",
+        choices=[
+            ("dark", _("Sombre")),
+            ("light", _("Clair")),
+            ("auto", _("Automatique (système)")),
+        ],
+        help_text=_("Thème de couleur du dashboard CookieKit."),
+    )
 
     # --- Textes ---
     title = models.CharField(
@@ -230,7 +267,7 @@ class CookieKitConfig(models.Model):
     cachekit_version_key = models.CharField(
         _("Clé de version CacheKit"),
         max_length=100,
-        default="cookiekit",
+        default="cookies",
     )
 
     # --- AnalyticsKit (intégration future) ---

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-xck-theme="{{ config.dashboard_theme|default:'dark' }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,18 +7,74 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    :root {
-      --xck-bg:        #0f0f0f;
-      --xck-surface:   #1a1a1a;
-      --xck-border:    #2a2a2a;
-      --xck-text:      #e8e8e8;
-      --xck-muted:     #777;
-      --xck-primary:   #ff6b00;
-      --xck-green:     #22c55e;
-      --xck-yellow:    #f59e0b;
-      --xck-red:       #ef4444;
-      --xck-radius:    12px;
-      --xck-font:      -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    /* ── Thème Sombre (défaut) ── */
+    :root, [data-xck-theme="dark"] {
+      --xck-bg:          #0f0f0f;
+      --xck-surface:     #1a1a1a;
+      --xck-surface2:    #222;
+      --xck-border:      #2a2a2a;
+      --xck-text:        #e8e8e8;
+      --xck-muted:       #777;
+      --xck-primary:     #ff6b00;
+      --xck-green:       #22c55e;
+      --xck-yellow:      #f59e0b;
+      --xck-red:         #ef4444;
+      --xck-radius:      12px;
+      --xck-font:        -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --xck-intg-bg:     rgba(255,255,255,.03);
+      --xck-code-bg:     rgba(255,255,255,.06);
+    }
+
+    /* ── Thème Clair ── */
+    [data-xck-theme="light"] {
+      --xck-bg:          #f5f5f7;
+      --xck-surface:     #ffffff;
+      --xck-surface2:    #f0f0f2;
+      --xck-border:      #d2d2d7;
+      --xck-text:        #1d1d1f;
+      --xck-muted:       #86868b;
+      --xck-primary:     #e05e00;
+      --xck-green:       #1a9e4a;
+      --xck-yellow:      #d97706;
+      --xck-red:         #dc2626;
+      --xck-radius:      12px;
+      --xck-font:        -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --xck-intg-bg:     rgba(0,0,0,.025);
+      --xck-code-bg:     rgba(0,0,0,.05);
+    }
+
+    /* ── Thème Auto ── */
+    @media (prefers-color-scheme: light) {
+      [data-xck-theme="auto"] {
+        --xck-bg:        #f5f5f7;
+        --xck-surface:   #ffffff;
+        --xck-surface2:  #f0f0f2;
+        --xck-border:    #d2d2d7;
+        --xck-text:      #1d1d1f;
+        --xck-muted:     #86868b;
+        --xck-primary:   #e05e00;
+        --xck-green:     #1a9e4a;
+        --xck-yellow:    #d97706;
+        --xck-red:       #dc2626;
+        --xck-intg-bg:   rgba(0,0,0,.025);
+        --xck-code-bg:   rgba(0,0,0,.05);
+      }
+    }
+    @media (prefers-color-scheme: dark) {
+      [data-xck-theme="auto"] {
+        --xck-bg:        #0f0f0f;
+        --xck-surface:   #1a1a1a;
+        --xck-surface2:  #222;
+        --xck-border:    #2a2a2a;
+        --xck-text:      #e8e8e8;
+        --xck-muted:     #777;
+        --xck-primary:   #ff6b00;
+        --xck-green:     #22c55e;
+        --xck-yellow:    #f59e0b;
+        --xck-red:       #ef4444;
+        --xck-intg-bg:   rgba(255,255,255,.03);
+        --xck-code-bg:   rgba(255,255,255,.06);
+      }
     }
 
     body {
@@ -28,6 +84,7 @@
       font-size: 14px;
       line-height: 1.6;
       min-height: 100vh;
+      transition: background .2s, color .2s;
     }
 
     /* ── Layout ── */
@@ -59,7 +116,8 @@
       color: var(--xck-muted);
     }
     .xck-user {
-      background: var(--xck-border);
+      background: var(--xck-surface2, var(--xck-border));
+      border: 1px solid var(--xck-border);
       padding: 4px 12px;
       border-radius: 20px;
       color: var(--xck-text);
@@ -75,6 +133,36 @@
       transition: opacity .15s;
     }
     .xck-btn-admin:hover { opacity: .85; }
+
+    /* ── Toggle thème ── */
+    .xck-theme-toggle {
+      background: var(--xck-surface2, var(--xck-border));
+      border: 1px solid var(--xck-border);
+      color: var(--xck-muted);
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .2s;
+    }
+    .xck-theme-toggle:hover { background: var(--xck-border); color: var(--xck-text); }
+
+    /* ── Swatch couleur ── */
+    .xck-swatch { display:inline-flex; align-items:center; gap:6px; }
+    .xck-swatch-dot { width:14px; height:14px; border-radius:4px; border:1px solid var(--xck-border); flex-shrink:0; }
+    .xck-swatch code { font-size:12px; font-family:monospace; }
+
+    /* ── Apparence grid ── */
+    .xck-appear-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:10px; margin-top:4px; }
+    .xck-appear-item { background:var(--xck-surface2,var(--xck-border)); border:1px solid var(--xck-border); border-radius:8px; padding:10px 12px; }
+    .xck-appear-item-label { font-size:11px; color:var(--xck-muted); margin-bottom:4px; text-transform:uppercase; letter-spacing:.04em; }
+    .xck-appear-item-val { font-size:13px; font-weight:600; }
+    .xck-appear-item-val code { font-family:monospace; font-weight:400; }
+    .xck-divider { height:1px; background:var(--xck-border); margin:14px 0; }
 
     .xck-container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
 
@@ -97,6 +185,7 @@
       border: 1px solid var(--xck-border);
       border-radius: var(--xck-radius);
       padding: 20px;
+      transition: background .2s, border-color .2s;
     }
     .xck-card-header {
       display: flex;
@@ -179,7 +268,7 @@
       align-items: center;
       justify-content: space-between;
       padding: 9px 12px;
-      background: rgba(255,255,255,.03);
+      background: var(--xck-intg-bg, rgba(255,255,255,.03));
       border: 1px solid var(--xck-border);
       border-radius: 8px;
       margin-bottom: 6px;
@@ -222,15 +311,9 @@
     }
 
     /* ── CacheKit card ── */
-    .xck-cachekit {
-      font-size: 13px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
     .xck-cachekit-key {
       font-family: monospace;
-      background: rgba(255,255,255,.05);
+      background: var(--xck-code-bg, rgba(255,255,255,.06));
       padding: 2px 8px;
       border-radius: 4px;
       color: var(--xck-primary);
@@ -269,6 +352,9 @@
     Xeolux CookieKit
   </div>
   <div class="xck-topbar-right">
+    <button class="xck-theme-toggle" id="xckThemeToggle" title="Changer le thème (dark/light/auto)" aria-label="Basculer le thème">
+      <span id="xckThemeIcon">☀</span>
+    </button>
     <span class="xck-user">{{ request.user.username }}</span>
     {% if request.user.is_staff %}
       <a href="/admin/xeolux_cookiekit/" class="xck-btn-admin">⚙ Admin</a>
@@ -368,6 +454,64 @@
         <span class="xck-config-val">{{ config.banner_position }}</span>
       </div>
     </div>
+
+    <!-- ── Apparence bandeau ── -->
+    <div class="xck-card">
+      <div class="xck-card-header">
+        <span class="xck-card-title">🎨 Apparence</span>
+        <span class="xck-badge xck-badge--on">
+          <span class="xck-dot"></span>
+          {% if config.banner_color_scheme == "light" %}Clair{% elif config.banner_color_scheme == "auto" %}Auto{% else %}Sombre{% endif %}
+        </span>
+      </div>
+      <div class="xck-appear-grid">
+        <div class="xck-appear-item">
+          <div class="xck-appear-item-label">Thème bandeau</div>
+          <div class="xck-appear-item-val">
+            {% if config.banner_color_scheme == "light" %}☀ Clair{% elif config.banner_color_scheme == "auto" %}⚡ Auto{% else %}🌙 Sombre{% endif %}
+          </div>
+        </div>
+        <div class="xck-appear-item">
+          <div class="xck-appear-item-label">Dashboard</div>
+          <div class="xck-appear-item-val">
+            {% if config.dashboard_theme == "light" %}☀ Clair{% elif config.dashboard_theme == "auto" %}⚡ Auto{% else %}🌙 Sombre{% endif %}
+          </div>
+        </div>
+        <div class="xck-appear-item">
+          <div class="xck-appear-item-label">Animation</div>
+          <div class="xck-appear-item-val">
+            {% if config.banner_animation == "fade" %}✦ Fondu{% elif config.banner_animation == "none" %}— Aucune{% else %}↑ Glissement{% endif %}
+          </div>
+        </div>
+        <div class="xck-appear-item">
+          <div class="xck-appear-item-label">Backdrop blur</div>
+          <div class="xck-appear-item-val">
+            {% if config.banner_backdrop_blur %}<span class="xck-badge xck-badge--on" style="font-size:11px;padding:2px 8px;">On</span>{% else %}<span class="xck-badge xck-badge--off" style="font-size:11px;padding:2px 8px;">Off</span>{% endif %}
+          </div>
+        </div>
+        <div class="xck-appear-item">
+          <div class="xck-appear-item-label">Border radius</div>
+          <div class="xck-appear-item-val"><code>{{ config.border_radius }}</code></div>
+        </div>
+        <div class="xck-appear-item">
+          <div class="xck-appear-item-label">Ombre</div>
+          <div class="xck-appear-item-val">
+            {% if config.shadow %}<span class="xck-badge xck-badge--on" style="font-size:11px;padding:2px 8px;">On</span>{% else %}<span class="xck-badge xck-badge--off" style="font-size:11px;padding:2px 8px;">Off</span>{% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="xck-divider"></div>
+      <div style="font-size:11px;color:var(--xck-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;">Palette</div>
+      {% for field, label, value in color_fields %}
+      <div class="xck-config-row">
+        <span class="xck-config-key">{{ label }}</span>
+        <span class="xck-swatch">
+          <span class="xck-swatch-dot" style="background:{{ value }};"></span>
+          <code>{{ value }}</code>
+        </span>
+      </div>
+      {% endfor %}
+    </div>
     {% endif %}
 
     <!-- ── CacheKit ── -->
@@ -387,10 +531,10 @@
           <div>xeolux-cachekit non installé.<br><code style="font-size:11px;">pip install xeolux-cachekit</code></div>
         </div>
       {% else %}
-        {% if cachekit_status.error == "no_get_version" %}
+        {% if cachekit_status.error == "no_get_cache_version" %}
           <div class="xck-alert xck-alert--warn">
             <span>⚠</span>
-            <span>Package installé mais <code>get_version()</code> introuvable — vérifiez la version de xeolux-cachekit.</span>
+            <span>Package installé mais <code>get_cache_version()</code> introuvable — vérifiez la version de xeolux-cachekit.</span>
           </div>
         {% elif cachekit_status.error %}
           <div class="xck-alert xck-alert--err">
@@ -501,6 +645,32 @@
   </div>
 
 </div><!-- /.xck-container -->
+
+<script>
+(function () {
+  var html = document.documentElement;
+  var btn  = document.getElementById('xckThemeToggle');
+  var icon = document.getElementById('xckThemeIcon');
+  var KEY  = 'xck_dash_theme';
+
+  // Préférence locale > thème sauvegardé côté serveur
+  var stored = localStorage.getItem(KEY);
+  if (stored) { html.setAttribute('data-xck-theme', stored); }
+  updateIcon(html.getAttribute('data-xck-theme') || 'dark');
+
+  btn.addEventListener('click', function () {
+    var cur  = html.getAttribute('data-xck-theme') || 'dark';
+    var next = cur === 'dark' ? 'light' : cur === 'light' ? 'auto' : 'dark';
+    html.setAttribute('data-xck-theme', next);
+    localStorage.setItem(KEY, next);
+    updateIcon(next);
+  });
+
+  function updateIcon(t) {
+    icon.textContent = t === 'light' ? '🌙' : t === 'auto' ? '⚡' : '☀';
+  }
+})();
+</script>
 
 </body>
 </html>
